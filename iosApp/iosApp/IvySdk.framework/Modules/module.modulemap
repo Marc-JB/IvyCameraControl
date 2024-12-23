@@ -1,0 +1,6 @@
+framework module IvySdk {
+  umbrella header "IvySdk.h"
+  export *
+
+  module * { export * }
+}

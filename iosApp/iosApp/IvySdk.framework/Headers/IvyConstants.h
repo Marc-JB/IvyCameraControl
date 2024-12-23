@@ -1,0 +1,913 @@
+//
+//  IvyConstants.h
+//  IvySdk
+//
+//  Created by JackChan on 12/6/2019.
+//  Copyright © 2019 ivyiot. All rights reserved.
+//
+
+#ifndef IvyConstants_h
+#define IvyConstants_h
+
+#import "IvyIoDef.h"
+#import "IvyObject.h"
+
+typedef void(^IvyLoginResultBlock)(IVYIO_HANDLE_STATE handleState, IVYIO_RESULT cmdResult);
+
+typedef void(^IvyCGIResultBlock)(_Nullable id object, IVYIO_RESULT cmdResult);
+
+#define IVYHANDLE   IVYIO_HANDLE
+#define SAFTYSTRING(aString)    ((aString) ?: @"")
+
+#define BASE_CTRL_MSG 0x07E3
+#define BASE_INTERNAL_CMD BASE_CTRL_MSG
+#define BASE_INTERNAL_COMMON_CMD BASE_CTRL_MSG + 20000
+#define BASE_INTERNAL_EVENT BASE_CTRL_MSG + 40000
+#define BASE_THIRD_PART_COMMON_CMD BASE_CTRL_MSG + 6000
+
+
+// The max is 0xffff(65535)
+// Attention! Record error code is begin at 10000, you should skip this value when you define command id
+enum
+{
+    // Internal cmd
+    NET_STATE_DISCONNECT = 88,
+    NET_STATE_RECONNECT = 89, // IVY Device has no this event, it is reserve
+    IVY_CTRL_MSG_EXCHANGE_KEY = BASE_CTRL_MSG,
+    IVY_CTRL_MSG_EXCHANGE_KEY_RESP,
+    IVY_CTRL_MSG_LOGIN,
+    IVY_CTRL_MSG_LOGIN_RESP,
+    IVY_CTRL_MSG_LOGOUT,
+    IVY_CTRL_MSG_LOGOUT_RESP,
+    IVY_CTRL_MSG_OPEN_LIVE_VIDEO,
+    IVY_CTRL_MSG_OPEN_LIVE_VIDEO_RESP,
+    IVY_CTRL_MSG_CLOSE_LIVE_VIDEO,
+    IVY_CTRL_MSG_CLOSE_LIVE_VIDEO_RESP,
+    IVY_CTRL_MSG_OPEN_LIVE_AUDIO,
+    IVY_CTRL_MSG_OPEN_LIVE_AUDIO_RESP,
+    IVY_CTRL_MSG_CLOSE_LIVE_AUDIO,
+    IVY_CTRL_MSG_CLOSE_LIVE_AUDIO_RESP,
+    IVY_CTRL_MSG_OPEN_TALK,
+    IVY_CTRL_MSG_OPEN_TALK_RESP,
+    IVY_CTRL_MSG_CLOSE_TALK,
+    IVY_CTRL_MSG_CLOSE_TALK_RESP,
+    IVY_CTRL_MSG_TALK_FRAME,
+    IVY_CTRL_MSG_VIDEO_FRAME,
+    IVY_CTRL_MSG_AUDIO_FRAME,
+    IVY_CTRL_MSG_PB_VIDEO_FRAME,
+    IVY_CTRL_MSG_PB_AUDIO_FRAME,
+    IVY_CTRL_MSG_ERROR_REQUEST,
+    IVY_CTRL_MSG_UNSUPORT,
+    IVY_CTRL_MSG_SERVER_RUNNING_ERR,
+    IVY_CTRL_MSG_USR_HEART_BEAT,
+    IVY_CTRL_MSG_USR_HEART_BEAT_RESP,
+    IVY_CTRL_MSG_MSG_TOKEN_ERR,
+    IVY_CTRL_MSG_GET_RECORD_LIST,
+    IVY_CTRL_MSG_GET_RECORD_LIST_RESP,
+    IVY_CTRL_MSG_RECORD_PLAYCONTROL,
+    IVY_CTRL_MSG_RECORD_PLAYCONTROL_RESP,
+    IVY_CTRL_MSG_RECORD_ERROR_NO_ENOUGE_SPACE, // not use
+    IVY_CTRL_MSG_RECORD_ERROR_MAX_FILE,  // not use
+    IVY_CTRL_MSG_RECORD_ERROR_SOLUTION_CHG, // not use
+    IVY_CTRL_MSG_RECORD_ERROR_FILE_PATH_NOEXIST, // not use
+    IVY_CTRL_MSG_RECORD_ERROR_UNKNOW, // not use
+    IVY_CTRL_MSG_REQUEST_KEY_FRAME,
+    IVY_CTRL_MSG_REQUEST_KEY_FRAME_RESP,
+    IVY_CTRL_MSG_DL_VIDEO_FRAME,
+    IVY_CTRL_MSG_DL_AUDIO_FRAME,
+    IVY_CTRL_MSG_RECORD_DOWNLOAD,
+    IVY_CTRL_MSG_RECORD_DOWNLOAD_RESP,
+    IVY_CTRL_MSG_RECORD_DOWNLOAD_PROGRESS,
+    IVY_CTRL_MSG_COMMIT_FILE,
+    IVY_CTRL_MSG_COMMIT_FILE_RESP,
+    IVY_CTRL_MSG_GET_PICTURE_LIST,
+    IVY_CTRL_MSG_GET_PICTURE_LIST_RESP,
+    IVY_CTRL_MSG_PICTURE_DOWNLOAD,
+    IVY_CTRL_MSG_PICTURE_DOWNLOAD_RESP,
+    IVY_CTRL_MSG_DL_PICTURE_FRAME,
+    
+    //
+    IVY_CTRL_MSG_ADD_ACCOUNT = BASE_CTRL_MSG + 20000,
+    IVY_CTRL_MSG_ADD_ACCOUNT_RESP, // 22020
+    IVY_CTRL_MSG_DEL_ACCOUNT, // 22021
+    IVY_CTRL_MSG_DEL_ACCOUNT_RESP, // 22022
+    IVY_CTRL_MSG_CHANGE_USER_INFO, // 22023
+    IVY_CTRL_MSG_CHANGE_USER_INFO_RESP, // 22024
+    IVY_CTRL_MSG_GET_DEVINFO, // 22025
+    IVY_CTRL_MSG_GET_DEVINFO_RESP, // 22026
+    IVY_CTRL_MSG_SET_DEVINFO, // 22027
+    IVY_CTRL_MSG_SET_DEVINFO_RESP, // 22028
+    IVY_CTRL_MSG_GET_DEVABILITY, // 22029
+    IVY_CTRL_MSG_GET_DEVABILITY_RESP, // 22030
+    IVY_CTRL_MSG_SET_FACTORY_ACCOUNT, // 22031
+    IVY_CTRL_MSG_SET_FACTORY_ACCOUNT_RESP, // 22032
+    IVY_CTRL_MSG_SET_IOT_OPENID, // 22033
+    IVY_CTRL_MSG_SET_IOT_OPENID_RESP, // 22034
+    IVY_CTRL_MSG_GET_INITINFO,
+
+    //media
+    IVY_CTRL_MSG_SET_VIDEOSTREAM_PARAM = BASE_CTRL_MSG + 22000, // no use for Foscam
+    IVY_CTRL_MSG_SET_VIDEOSTREAM_PARAM_RESP, // 24020 // no use for Foscam
+    IVY_CTRL_MSG_GET_VIDEOSTREAM_PARAM, // 24021 // no use for Foscam
+    IVY_CTRL_MSG_GET_VIDEOSTREAM_PARAM_RESP, // 24022 // no use for Foscam
+    IVY_CTRL_MSG_SET_VIDEOSTREAM_MODE, // 24023
+    IVY_CTRL_MSG_SET_VIDEOSTREAM_MODE_RESP, // 24024
+    IVY_CTRL_MSG_GET_VIDEOSTREAM_MODE, // 24025
+    IVY_CTRL_MSG_GET_VIDEOSTREAM_MODE_RESP, // 24026
+    IVY_CTRL_MSG_SET_IMAGE_PARAM, // 24027
+    IVY_CTRL_MSG_SET_IMAGE_PARAM_RESP, // 24028
+    IVY_CTRL_MSG_GET_IMAGE_PARAM, // 24029
+    IVY_CTRL_MSG_GET_IMAGE_PARAM_RESP, // 24030
+    IVY_CTRL_MSG_SET_MOTION_DETECT_CONFIG, // 24031
+    IVY_CTRL_MSG_SET_MOTION_DETECT_CONFIG_RESP, // 24032
+    IVY_CTRL_MSG_GET_MOTION_DETECT_CONFIG, // 24033
+    IVY_CTRL_MSG_GET_MOTION_DETECT_CONFIG_RESP, // 24034
+    IVY_CTRL_MSG_SET_VIDEO_MIRROR_FLIP, // 24035
+    IVY_CTRL_MSG_SET_VIDEO_MIRROR_FLIP_RESP, // 24036
+    IVY_CTRL_MSG_GET_VIDEO_MIRROR_FLIP, // 24037
+    IVY_CTRL_MSG_GET_VIDEO_MIRROR_FLIP_RESP, // 24038
+    IVY_CTRL_MSG_SET_ENVIRONMENT, // 24039
+    IVY_CTRL_MSG_SET_ENVIRONMENT_RESP, // 24040
+    IVY_CTRL_MSG_GET_ENVIRONMENT, // 24041
+    IVY_CTRL_MSG_GET_ENVIRONMENT_RESP, // 24042
+    IVY_CTRL_MSG_SET_OSD_PARAM, // 24043
+    IVY_CTRL_MSG_SET_OSD_PARAM_RESP, // 24044
+    IVY_CTRL_MSG_GET_OSD_PARAM, // 24045
+    IVY_CTRL_MSG_GET_OSD_PARAM_RESP, // 24046
+    IVY_CTRL_MSG_SET_AUDIO_VOLUME, // 24047
+    IVY_CTRL_MSG_SET_AUDIO_VOLUME_RESP, // 24048
+    IVY_CTRL_MSG_GET_AUDIO_VOLUME, // 24049
+    IVY_CTRL_MSG_GET_AUDIO_VOLUME_RESP, //24050
+    IVY_CTRL_MSG_GET_VIDEO_STREAM_ABLITY, // 24051
+    IVY_CTRL_MSG_GET_VIDEO_STREAM_ABLITY_RESP, // 24052
+    IVY_CTRL_MSG_SET_DAY_NIGHT_MODE, // 24053
+    IVY_CTRL_MSG_SET_DAY_NIGHT_MODE_RESP, // 24054
+    IVY_CTRL_MSG_GET_DAY_NIGHT_MODE, // 24055
+    IVY_CTRL_MSG_GET_DAY_NIGHT_MODE_RESP, // 24056
+    IVY_CTRL_MSG_SET_NIGHT_VISION_SCHEDULE, // 24057
+    IVY_CTRL_MSG_SET_NIGHT_VISION_SCHEDULE_RESP, // 24058
+    IVY_CTRL_MSG_GET_NIGHT_VISION_SCHEDULE, // 24059
+    IVY_CTRL_MSG_GET_NIGHT_VISION_SCHEDULE_RESP, // 24060
+    IVY_CTRL_MSG_SNAP_PICTURE, // 24061
+    IVY_CTRL_MSG_SNAP_PICTURE_RESP, // 24062
+    IVY_CTRL_MSG_GET_MUSIC_PLAY_STATE, // 24063
+    IVY_CTRL_MSG_GET_MUSIC_PLAY_STATE_RESP, // 24064
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_START, // 24065
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_START_RESP, // 24066
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_STOP, // 24067
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_STOP_RESP, // 24068
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_PREV, // 24069
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_PREV_RESP, // 24070
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_NEXT, // 24071
+    IVY_CTRL_MSG_SET_MUSIC_PLAY_NEXT_RESP, // 24072
+    IVY_CTRL_MSG_GET_MUSIC_NAME_LIST, // 24073
+    IVY_CTRL_MSG_GET_MUSIC_NAME_LIST_RESP, // 24074
+    IVY_CTRL_MSG_GET_VIDEO_STREAM_PARAM, // 24075                                // foscam ipc command
+    IVY_CTRL_MSG_GET_VIDEO_STREAM_PARAM_RESP, // 24076                            // foscam ipc command
+    IVY_CTRL_MSG_GET_VIDEO_STREAM_TYPE,    // 24077                                // foscam ipc command
+    IVY_CTRL_MSG_GET_VIDEO_STREAM_TYPE_RESP, // 24078                            // foscam ipc command
+    IVY_CTRL_MSG_GET_DEFRAME_ENABLE, // 24079                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_DEFRAME_ENABLE_RESP, // 24080                                // foscam ipc command
+    IVY_CTRL_MSG_GET_STREAM_FORMAT, // 24081                                // foscam ipc command
+    IVY_CTRL_MSG_GET_STREAM_FORMAT_RESP, // 24082                            // foscam ipc command
+    IVY_CTRL_MSG_SET_VIDEO_STREAM_PARAM, // 24083                                // foscam ipc command
+    IVY_CTRL_MSG_SET_VIDEO_STREAM_PARAM_RESP, // 24084                            // foscam ipc command
+    IVY_CTRL_MSG_SET_DEFRAME_ENABLE, // 24085                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_DEFRAME_ENABLE_RESP, // 24086                                // foscam ipc command
+    IVY_CTRL_MSG_GET_PRIVACY_ZONE_ENABLE, // 24087                                // foscam ipc command
+    IVY_CTRL_MSG_GET_PRIVACY_ZONE_ENABLE_RESP, // 24088                            // foscam ipc command
+    IVY_CTRL_MSG_GET_PRIVACY_ZONE, //24089                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_PRIVACY_ZONE_RESP,    // 24090                                // foscam ipc command
+    IVY_CTRL_MSG_SET_PRIVACY_ZONE_ENABLE, // 24091                                // foscam ipc command
+    IVY_CTRL_MSG_SET_PRIVACY_ZONE_ENABLE_RESP, // 24092                            // foscam ipc command
+    IVY_CTRL_MSG_SET_PRIVACY_ZONE, // 24093                                        // foscam ipc command
+    IVY_CTRL_MSG_SET_PRIVACY_ZONE_RESP, // 24094                                // foscam ipc command
+    IVY_CTRL_MSG_GET_SNAPSHOT_CONFIG, // 24095                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_SNAPSHOT_CONFIG_RESP, // 24096                                // foscam ipc command
+    IVY_CTRL_MSG_SET_SNAPSHOT_CONFIG, // 24097                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_SNAPSHOT_CONFIG_RESP, // 24098                                // foscam ipc command
+    IVY_CTRL_MSG_SET_VIDEO_STREAM_TYPE, // 24099                                // foscam ipc command
+    IVY_CTRL_MSG_GET_MUSIC_LIST, // 24100                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_MUSIC_LIST_RESP, // 24101                                    // foscam ipc command
+    IVY_CTRL_MSG_DROPBOX_GET_SNAP_CONFIG, // 24102                                // For oem Foscam ipc
+    IVY_CTRL_MSG_DROPBOX_GET_SNAP_CONFIG_RESP, // 24103
+    IVY_CTRL_MSG_DROPBOX_SET_SNAP_CONFIG, // 24104                                // For oem foscam ipc
+    IVY_CTRL_MSG_DROPBOX_SET_SNAP_CONFIG_RESP, // 24105
+    IVY_CTRL_MSG_SET_SPEAK_VOLUME, // 24106                                            // For doorbell command
+    IVY_CTRL_MSG_SET_SPEAK_VOLUME_RESP, // 24107
+    IVY_CTRL_MSG_GET_SPEAK_VOLUME, // 24108                                            // For doorbell command
+    IVY_CTRL_MSG_GET_SPEAK_VOLUME_RESP, // 24109
+    IVY_CTRL_MSG_SET_LEAVE_MESSAGE, // 24110                                        // For doorbell
+    IVY_CTRL_MSG_SET_LEAVE_MESSAGE_RESP, // 24111                                    // For doorbell
+    IVY_CTRL_MSG_GET_LEAVE_MESSAGE, // 24112                                        // For doorbell
+    IVY_CTRL_MSG_GET_LEAVE_MESSAGE_RESP, // 24113                                    // For doorbell
+    IVY_CTRL_MSG_SET_STREAM_FORMAT, // 24114
+    IVY_CTRL_MSG_SET_STREAM_FORMAT_RESP, // 24115
+
+    //system
+    IVY_CTRL_MSG_SET_SYSTEM_TIME = BASE_CTRL_MSG + 24000,
+    IVY_CTRL_MSG_SET_SYSTEM_TIME_RESP, // 26020
+    IVY_CTRL_MSG_GET_SYSTEM_TIME, // 26021
+    IVY_CTRL_MSG_GET_SYSTEM_TIME_RESP, // 26022
+    IVY_CTRL_MSG_REBOOT_SYSTEM, // 26023
+    IVY_CTRL_MSG_REBOOT_SYSTEM_RESP, // 26024
+    IVY_CTRL_MSG_POWEROFF, // 26025
+    IVY_CTRL_MSG_POWEROFF_RESP, // 26026
+    IVY_CTRL_MSG_FACTORY_RESET, // 26027
+    IVY_CTRL_MSG_FACTORY_RESET_RESP, // 26028
+    IVY_CTRL_MSG_PTZ_CONTROL_CMD, // 26029
+    IVY_CTRL_MSG_PTZ_CONTROL_CMD_RESP, // 26030
+    IVY_CTRL_MSG_GET_DISK_INFO, // 26031
+    IVY_CTRL_MSG_GET_DISK_INFO_RESP, // 26032
+    IVY_CTRL_MSG_DISK_FORMAT, // 26033
+    IVY_CTRL_MSG_DISK_FORMAT_RESP, // 26034
+    IVY_CTRL_MSG_SET_ONLINE_UPGRADE, // 26035
+    IVY_CTRL_MSG_SET_ONLINE_UPGRADE_RESP, // 26036
+    IVY_CTRL_MSG_GET_SD_CARD_INFO, // 26037
+    IVY_CTRL_MSG_GET_SD_CARD_INFO_RESP, // 26038
+    IVY_CTRL_MSG_SD_CARD_FORMAT, // 26039
+    IVY_CTRL_MSG_SD_CARD_FORMAT_RESP, // 26040
+    IVY_CTRL_MSG_SET_UPNP_CONIG, // 26041
+    IVY_CTRL_MSG_SET_UPNP_CONIG_RESP, // 26042
+    IVY_CTRL_MSG_GET_UPNP_CONIG, // 26043
+    IVY_CTRL_MSG_GET_UPNP_CONIG_RESP, // 26044
+    IVY_CTRL_MSG_SET_LED_CONFIG, // Deprecated
+    IVY_CTRL_MSG_SET_LED_CONFIG_RESP, // Deprecated
+    IVY_CTRL_MSG_GET_LED_CONFIG, // Deprecated
+    IVY_CTRL_MSG_GET_LED_CONFIG_RESP, // Deprecated
+    IVY_CTRL_MSG_SET_MAINTAIN_CONFIG, // 26049
+    IVY_CTRL_MSG_SET_MAINTAIN_CONFIG_RESP, // 26050
+    IVY_CTRL_MSG_GET_MAINTAIN_CONFIG, // 26051
+    IVY_CTRL_MSG_GET_MAINTAIN_CONFIG_RESP, // 26052
+    IVY_CTRL_MSG_SET_SILENT_UPGRADE_CONFIG, // 26053
+    IVY_CTRL_MSG_SET_SILENT_UPGRADE_CONFIG_RESP, // 26054
+    IVY_CTRL_MSG_GET_SILENT_UPGRADE_CONFIG, // 26055
+    IVY_CTRL_MSG_GET_SILENT_UPGRADE_CONFIG_RESP, // 26056
+    IVY_CTRL_MSG_SWITCH_BUZZER, // 26057
+    IVY_CTRL_MSG_SWITCH_BUZZER_RESP, // 26058
+    IVY_CTRL_MSG_GET_BPI_BATTERY_STATUS, // 26059
+    IVY_CTRL_MSG_GET_BPI_BATTERY_STATUS_RESP, // 26060
+    IVY_CTRL_MSG_SET_LED_STATE, // 26061
+    IVY_CTRL_MSG_SET_LED_STATE_RESP, // 26062
+    IVY_CTRL_MSG_GET_LED_STATE, // 26063
+    IVY_CTRL_MSG_GET_LED_STATE_RESP, // 26064
+    IVY_CTRL_MSG_SET_VOICE_STATE, // 26065
+    IVY_CTRL_MSG_SET_VOICE_STATE_RESP, // 26066
+    IVY_CTRL_MSG_GET_VOICE_STATE, // 26067
+    IVY_CTRL_MSG_GET_VOICE_STATE_RESP, // 26068
+    IVY_CTRL_MSG_SET_NIGHT_LIGHT, // 26069
+    IVY_CTRL_MSG_SET_NIGHT_LIGHT_RESP, // 26070
+    IVY_CTRL_MSG_GET_NIGHT_LIGHT, // 26071
+    IVY_CTRL_MSG_GET_NIGHT_LIGHT_RESP, // 26072
+    IVY_CTRL_MSG_SET_AUDIO_ENABLE_STATE, // 26073                            // only for foscam bpi
+    IVY_CTRL_MSG_SET_AUDIO_ENABLE_STATE_RESP, // 26074                        // only for foscam bpi
+    IVY_CTRL_MSG_GET_AUDIO_ENABLE_STATE, // 26075                            // only for foscam bpi
+    IVY_CTRL_MSG_GET_AUDIO_ENABLE_STATE_RESP, // 26076                        // only for foscam bpi
+    IVY_CTRL_MSG_SET_IMAGE_COLOR, // 26077                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_IMAGE_COLOR_RESP, // 26078                                // foscam ipc command
+    IVY_CTRL_MSG_SET_WDR, // 26079                                            // foscam ipc command
+    IVY_CTRL_MSG_SET_WDR_RESP, // 26080                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_SESSION_LIST, // 26081                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_SESSION_LIST_RESP,    // 26082                            // foscam ipc command
+    IVY_CTRL_MSG_GET_LOG, // 26083                                            // foscam ipc command
+    IVY_CTRL_MSG_GET_LOG_RESP, // 26084                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_USER_LIST,    // 26085                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_USER_LIST_RESP, // 26086                                // foscam ipc command
+    IVY_CTRL_MSG_GET_PORT_INFO,    // 26087                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_PORT_INFO_RESP, // 26088                                // foscam ipc command
+    IVY_CTRL_MSG_SET_PORT_INFO,    // 26089                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_PORT_INFO_RESP, // 26090                                // foscam ipc command
+    IVY_CTRL_MSG_SET_P2P_PORT, // 26091                                        // foscam ipc command
+    IVY_CTRL_MSG_SET_P2P_PORT_RESP,    // 26092                                // foscam ipc command
+    IVY_CTRL_MSG_GET_P2P_PORT, // 26093                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_P2P_PORT_RESP,    // 26094                                // foscam ipc command
+    IVY_CTRL_MSG_GET_ONVIF_AGENT_STATE,    // 26095                            // foscam ipc command
+    IVY_CTRL_MSG_GET_ONVIF_AGENT_STATE_RESP, // 26096                        // foscam ipc command
+    IVY_CTRL_MSG_GET_ONVIF_AUTH_REQUIRED, // 26097                            // foscam ipc command
+    IVY_CTRL_MSG_GET_ONVIF_AUTH_REQUIRED_RESP, // 26098                        // foscam ipc command
+    IVY_CTRL_MSG_SET_ONVIF_ENABLE, // 26099                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_ONVIF_ENABLE_RESP,    // 26100                            // foscam ipc command
+    IVY_CTRL_MSG_SET_ONVIF_AUTH_ENABLE, // 26101                            // foscam ipc command
+    IVY_CTRL_MSG_SET_ONVIF_AUTH_ENABLE_RESP, // 26102                        // foscam ipc command
+    IVY_CTRL_MSG_IMPORT_CONFIG_FILE, // 26103                                // foscam ipc command
+    IVY_CTRL_MSG_IMPORT_CONFIG_FILE_RESP, // 26104                            // foscam ipc command
+    IVY_CTRL_MSG_GET_CONFIG_FILE_NAME, // 26105                                // foscam ipc command
+    IVY_CTRL_MSG_GET_CONFIG_FILE_NAME_RESP,    // 26106                        // foscam ipc command
+    IVY_CTRL_MSG_UPGRADE_BY_FILE, // 26107                                    // foscam ipc command
+    IVY_CTRL_MSG_UPGRADE_BY_FILE_RESP, // 26108                                // foscam ipc command
+    IVY_CTRL_MSG_REMOVE_PATCH, // 26109                                        // foscam ipc command
+    IVY_CTRL_MSG_REMOVE_PATCH_RESP, // 26110                                // foscam ipc command
+    IVY_CTRL_MSG_GET_TIMING_REBOOT,    // 26111                                // foscam ipc command
+    IVY_CTRL_MSG_GET_TIMING_REBOOT_RESP, // 26112                            // foscam ipc command
+    IVY_CTRL_MSG_SET_TIMING_REBOOT, // 26113                                // foscam ipc command
+    IVY_CTRL_MSG_SET_TIMING_REBOOT_RESP, // 26114                            // foscam ipc command
+    IVY_CTRL_MSG_GET_DEVICE_STATUS,    // 26115                                // foscam ipc command
+    IVY_CTRL_MSG_GET_DEVICE_STATUS_RESP, // 26116                            // foscam ipc command
+    IVY_CTRL_MSG_START_SEND_DEBUG_LOG, // 26117
+    IVY_CTRL_MSG_START_SEND_DEBUG_LOG_RESP, // 26118
+    IVY_CTRL_MSG_STOP_SEND_DEBUG_LOG, // 26119
+    IVY_CTRL_MSG_STOP_SEND_DEBUG_LOG_RESP, // 26120
+    IVY_CTRL_MSG_SET_TELNET_SWITCH, // 26121
+    IVY_CTRL_MSG_SET_TELNET_SWITCH_RESP, // 26122
+    IVY_CTRL_MSG_GET_SDK_VERSION, // 26123
+    IVY_CTRL_MSG_GET_SDK_VERSION_RESP, // 26124
+    IVY_CTRL_MSG_SET_DST, // 26125                                            // foscam ipc command
+    IVY_CTRL_MSG_SET_DST_RESP, // 26126                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_DST, // 26127                                            // foscam ipc command
+    IVY_CTRL_MSG_GET_DST_RESP, // 26128                                        // foscam ipc command
+    IVY_CTRL_MSG_UPGRADE_IPC_BY_FILE, // 26129                                // foscam nvr command
+    IVY_CTRL_MSG_UPGRADE_IPC_BY_FILE_RESP, // 26130                            // foscam nvr command
+    IVY_CTRL_MSG_UPGRADE_IPC_ONLINE, // 26131                                // foscam nvr command
+    IVY_CTRL_MSG_UPGRADE_IPC_ONLINE_RESP, // 26132                            // foscam nvr command
+    IVY_CTRL_MSG_GET_WDR, // 26133                                            // foscam ipc command
+    IVY_CTRL_MSG_GET_WDR_RESP, // 26134                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_IMAGE_COLOR, // 26135                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_IMAGE_COLOR_RESP, // 26136                                // foscam ipc command
+    IVY_CTRL_MSG_DOORBELL_UNLOCK, // 26137
+    IVY_CTRL_MSG_DOORBELL_UNLOCK_RESP, // 26138
+    IVY_CTRL_MSG_GET_DOORBELL_CALL_STAT, // 26139
+    IVY_CTRL_MSG_GET_DOORBELL_CALL_STAT_RESP, // 26140
+    IVY_CTRL_MSG_GET_P2P_TUTK_TO_FOSCAM_FLAG, // 26141                        // foscam ipc command
+    IVY_CTRL_MSG_GET_P2P_TUTK_TO_FOSCAM_FLAG_RESP, // 26142                    // foscam ipc command
+    IVY_CTRL_MSG_SWITCH_P2P_TUTK_TO_FOSCAM,    // 26143                        // foscam ipc command
+    IVY_CTRL_MSG_SWITCH_P2P_TUTK_TO_FOSCAM_RESP, // 26144                    // foscam ipc command
+    IVY_CTRL_MSG_BEGIN_NVR_IPC_PAIRING, // 26145
+    IVY_CTRL_MSG_BEGIN_NVR_IPC_PAIRING_RESP, // 26146
+    IVY_CTRL_MSG_SET_SN, // 26147
+    IVY_CTRL_MSG_SET_SN_RESP, // 26148
+    IVY_CTRL_MSG_GET_SN, // 26149
+    IVY_CTRL_MSG_GET_SN_RESP, // 26150
+    IVY_CTRL_MSG_SET_SLEEP_CONFIG, // 26151                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_SLEEP_CONFIG_RESP, // 26152                            // foscam ipc command
+    IVY_CTRL_MSG_GET_SLEEP_CONFIG, // 26153                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_SLEEP_CONFIG_RESP, // 26154                            // foscam ipc command
+    IVY_CTRL_MSG_SET_WHITE_LIGHT_SCHEDULE, // 26155                            // foscam ipc command
+    IVY_CTRL_MSG_SET_WHITE_LIGHT_SCHEDULE_RESP, // 26156                    // foscam ipc command
+    IVY_CTRL_MSG_GET_WHITE_LIGHT_SCHEDULE, // 26157                            // foscam ipc command
+    IVY_CTRL_MSG_GET_WHITE_LIGHT_SCHEDULE_RESP, // 26158                    // foscam ipc command
+    IVY_CTRL_MSG_SET_FILL_LIGHT_CONFIG,     // 26159
+    IVY_CTRL_MSG_SET_FILL_LIGHT_CONFIG_RESP,   // 26160
+    IVY_CTRL_MSG_GET_FILL_LIGHT_CONFIG,     // 26161
+    IVY_CTRL_MSG_GET_FILL_LIGHT_CONFIG_RESP,   // 26162
+    IVY_CTRL_MSG_SET_CLOUD_AND_SD_ALARM_RECORD_HAS_AUDIO, // 26163            // foscam ipc command
+    IVY_CTRL_MSG_SET_CLOUD_AND_SD_ALRAM_RECORD_HAS_AUDIO_RESP, // 26164        // foscam ipc command
+    IVY_CTRL_MSG_GET_CLOUD_AND_SD_ALARM_RECORD_HAS_AUDIO, // 26165            // foscam ipc command
+    IVY_CTRL_MSG_GET_CLOUD_AND_SD_ALRAM_RECORD_HAS_AUDIO_RESP, // 26166        // foscam ipc command
+    IVY_CTRL_MSG_SET_DEVICE_PRODUCT_CONFIG,  //26167
+    IVY_CTRL_MSG_SET_DEVICE_PRODUCT_CONFIG_RESP,//26168
+    IVY_CTRL_MSG_GET_DEVICE_PRODUCT_CONFIG, //26169
+    IVY_CTRL_MSG_GET_DEVICE_PRODUCT_CONFIG_RESP, //26170
+    IVY_CTRL_MSG_SET_DEVICE_PRODUCT_ABILITY_STATE,              //26171    Only for device use, app not use it.
+    IVY_CTRL_MSG_SET_DEVICE_PRODUCT_ABILITY_STATE_RESP,            //26172    Only for device use, app not use it.
+    IVY_CTRL_MSG_GET_DEVICE_PRODUCT_ABILITY_STATE,                 //26173    Only for device use, app not use it.
+    IVY_CTRL_MSG_GET_DEVICE_PRODUCT_ABILITY_STATE_RESP,         //26174    Only for device use, app not use it.
+    IVY_CTRL_MSG_SET_LIGHT_VISION_SWITCH_MODE_CONFIG,             //26175
+    IVY_CTRL_MSG_SET_LIGHT_VISION_SWITCH_MODE_CONFIG_RESP,        //26176
+    IVY_CTRL_MSG_GET_LIGHT_VISION_SWITCH_MODE_CONFIG,            //26177
+    IVY_CTRL_MSG_GET_LIGHT_VISION_SWITCH_MODE_CONFIG_RESP,        //26178
+    IVY_CTRL_MSG_SET_DEVICE_BIND_INFO,                            //26179
+    IVY_CTRL_MSG_SET_DEVICE_BIND_INFO_RESP,                        //26180
+    IVY_CTRL_MSG_GET_DEVICE_BIND_INFO,                            //26181
+    IVY_CTRL_MSG_GET_DEVICE_BIND_INFO_RESP,                        //26182
+    IVY_CTRL_MSG_SET_FOSCAM_PRODUCT_CONFIG,                        //26183
+    IVY_CTRL_MSG_SET_FOSCAM_PRODUCT_CONFIG_RESP,                //26184
+    IVY_CTRL_MSG_GET_FOSCAM_PRODUCT_CONFIG,                        //26185
+    IVY_CTRL_MSG_GET_FOSCAM_PRODUCT_CONFIG_RESP,                //26186
+    IVY_CTRL_MSG_GET_FOSCAM_DEVICE_ABILITY_ON_THE_NVR,            //26187
+    IVY_CTRL_MSG_GET_FOSCAM_DEVICE_ABILITY_ON_THE_NVR_RESP,        //26188
+    IVY_CTRL_MSG_SEND_FOSCAM_CGI,                                //26189
+    IVY_CTRL_MSG_SEND_FOSCAM_CGI_RESP,                            //26190
+    
+    //record
+    IVY_CTRL_MSG_SET_RECORD_INFO = BASE_CTRL_MSG + 26000,
+    IVY_CTRL_MSG_SET_RECORD_INFO_RESP, // 28020
+    IVY_CTRL_MSG_GET_RECORD_INFO, // 28021
+    IVY_CTRL_MSG_GET_RECORD_INFO_RESP, // 28022
+    IVY_CTRL_MSG_GET_RECORD_LIST_RESERVE, // reserve
+    IVY_CTRL_MSG_GET_RECORD_LIST_RESERVE_RESP, // reserve
+    IVY_CTRL_MSG_RECORD_FILES_DOWNLOAD, // 28025
+    IVY_CTRL_MSG_RECORD_FILES_DOWNLOAD_RESP, // 28026
+    IVY_CTRL_MSG_RECORD_PLAYCONTROL_RESERVE, // reserve
+    IVY_CTRL_MSG_RECORD_PLAYCONTROL_RESERVE_RESP, // reserve
+    IVY_CTRL_MSG_SET_RECORD_HAS_AUDIO, // 28029
+    IVY_CTRL_MSG_SET_RECORD_HAS_AUDIO_RESP, // 28030
+    IVY_CTRL_MSG_GET_RECORD_HAS_AUDIO, // 28031
+    IVY_CTRL_MSG_GET_RECORD_HAS_AUDIO_RESP, // 28032
+    IVY_CTRL_MSG_SET_RECORD_MODE, // 28033
+    IVY_CTRL_MSG_SET_RECORD_MODE_RESP, // 28034
+    IVY_CTRL_MSG_GET_RECORD_MODE, // 28035
+    IVY_CTRL_MSG_GET_RECORD_MODE_RESP, // 28036
+    IVY_CTRL_MSG_SET_RECORD_STORE_LOCATION, // 28037
+    IVY_CTRL_MSG_SET_RECORD_STORE_LOCATION_RESP, // 28038
+    IVY_CTRL_MSG_GET_RECORD_STORE_LOCATION, // 28039
+    IVY_CTRL_MSG_GET_RECORD_STORE_LOCATION_RESP, // 28040
+    IVY_CTRL_MSG_SET_ENABLE_ALGORITHM, // 28041
+    IVY_CTRL_MSG_SET_ENABLE_ALGORITHM_RESP, // 28042
+    IVY_CTRL_MSG_GET_ENABLE_ALGORITHM, // 28043
+    IVY_CTRL_MSG_GET_ENABLE_ALGORITHM_RESP, // 28044
+    IVY_CTRL_MSG_SET_STROGE_CONFIG, // 28045
+    IVY_CTRL_MSG_SET_STROGE_CONFIG_RESP, // 28046
+    IVY_CTRL_MSG_GET_STROGE_CONFIG, // 28047
+    IVY_CTRL_MSG_GET_STROGE_CONFIG_RESP, // 28048
+    IVY_CTRL_MSG_GET_SCHEDULE_RECORD_CONFIG, // 28049                        // foscam ipc command
+    IVY_CTRL_MSG_GET_SCHEDULE_RECORD_CONFIG_RESP, // 28050                    // foscam ipc command
+    IVY_CTRL_MSG_SET_SCHEDULE_RECORD_CONFIG, // 28051                        // foscam ipc command
+    IVY_CTRL_MSG_SET_SCHEDULE_RECORD_CONFIG_RESP, // 28052                    // foscam ipc command
+    IVY_CTRL_MSG_DROPBOX_SET_RECORD_PATH, // 28053                            // For oem foscam ipc
+    IVY_CTRL_MSG_DROPBOX_SET_RECORD_PATH_RESP, // 28054
+    IVY_CTRL_MSG_GET_RECORD_DAYS_FOR_YEAR,    // 28055
+    IVY_CTRL_MSG_GET_RECORD_DAYS_FOR_YEAR_RESP, // 28056
+    IVY_CTRL_MSG_GET_RECORD_DAYS_FOR_MONTH, // 28057
+    IVY_CTRL_MSG_GET_RECORD_DAYS_FOR_MONTH_RESP, // 28058
+
+
+
+    //network
+    IVY_CTRL_MSG_SET_NET_PARAM = BASE_CTRL_MSG + 28000,
+    IVY_CTRL_MSG_SET_NET_PARAM_RESP, // 30020
+    IVY_CTRL_MSG_GET_NET_PARAM, // 30021
+    IVY_CTRL_MSG_GET_NET_PARAM_RESP, // 30022
+    IVY_CTRL_MSG_SET_WIFI_PARAM, // 30023
+    IVY_CTRL_MSG_SET_WIFI_PARAM_RESP, // 30024
+    IVY_CTRL_MSG_GET_WIFI_PARAM, // 30025
+    IVY_CTRL_MSG_GET_WIFI_PARAM_RESP, // 30026
+    IVY_CTRL_MSG_REFRESH_WIFI_AP_LIST, // 30027
+    IVY_CTRL_MSG_REFRESH_WIFI_AP_LIST_RESP, // 30028
+    IVY_CTRL_MSG_GET_WIFI_AP_LIST, // 30029
+    IVY_CTRL_MSG_GET_WIFI_AP_LIST_RESP, // 30030
+    IVY_CTRL_MSG_TEST_WIFI, // 30031
+    IVY_CTRL_MSG_TEST_WIFI_RESP, // 30032
+    IVY_CTRL_MSG_SET_DDNS_CONFIG, // 30033
+    IVY_CTRL_MSG_SET_DDNS_CONFIG_RESP, // 30034
+    IVY_CTRL_MSG_GET_DDNS_CONFIG, // 30035
+    IVY_CTRL_MSG_GET_DDNS_CONFIG_RESP, // 30036
+    IVY_CTRL_MSG_SET_P2P_INFO, // 30037
+    IVY_CTRL_MSG_SET_P2P_INFO_RESP, // 30038
+    IVY_CTRL_MSG_GET_P2P_INFO, // 30039
+    IVY_CTRL_MSG_GET_P2P_INFO_RESP, // 30040
+    IVY_CTRL_MSG_SET_NETWORK_ADAPTATION, // 30041
+    IVY_CTRL_MSG_SET_NETWORK_ADAPTATION_RESP, // 30042
+    IVY_CTRL_MSG_GET_NETWORK_ADAPTATION, // 30043
+    IVY_CTRL_MSG_GET_NETWORK_ADAPTATION_RESP, // 30044
+    IVY_CTRL_MSG_SET_SMTP_CONFIG, // 30045                                        // foscam ipc command
+    IVY_CTRL_MSG_SET_SMTP_CONFIG_RESP, // 30046                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_SMTP_CONFIG, // 30047                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_SMTP_CONFIG_RESP, //30048                                    // foscam ipc command
+    IVY_CTRL_MSG_SMTP_TEST,    // 30049                                            // foscam ipc command
+    IVY_CTRL_MSG_SMTP_TEST_RESP, // 30050                                        // foscam ipc command
+    IVY_CTRL_MSG_SET_FTP_CONFIG, // 30051                                        // foscam ipc command
+    IVY_CTRL_MSG_SET_FTP_CONFIG_RESP, // 30052                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_FTP_CONFIG, // 30053                                        // foscam ipc command
+    IVY_CTRL_MSG_GET_FTP_CONFIG_RESP, // 30054                                    // foscam ipc command
+    IVY_CTRL_MSG_FTP_TEST, // 30055                                                // foscam ipc command
+    IVY_CTRL_MSG_FTP_TEST_RESP,    // 30056                                        // foscam ipc command
+    IVY_CTRL_MSG_FTP_START_SERVER, // 30057                                        // foscam ipc command
+    IVY_CTRL_MSG_SET_MAC_ADDR, // 30058
+    IVY_CTRL_MSG_SET_MAC_ADDR_RESP, // 30059
+    IVY_CTRL_MSG_GET_NET_MODE, // 30060                                            // foscam ipc command
+    IVY_CTRL_MSG_GET_NET_MODE_RESP,    // 30061                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_4G_INFO, // 30062
+    IVY_CTRL_MSG_GET_4G_INFO_RESP, // 30063
+    IVY_CTRL_MSG_START_WIFI_ABILITY_TEST, // 30064
+    IVY_CTRL_MSG_START_WIFI_ABILITY_TEST_RESP, // 30065
+    IVY_CTRL_MSG_STOP_WIFI_ABILITY_TEST, // 30066
+    IVY_CTRL_MSG_STOP_WIFI_ABILITY_TEST_RESP, // 30067
+    IVY_CTRL_MSG_SET_WIFI_AP_INFO, // 30068
+    IVY_CTRL_MSG_SET_WIFI_AP_INFO_RESP, // 30069
+    IVY_CTRL_MSG_GET_WIFI_AP_INFO, // 30070
+    IVY_CTRL_MSG_GET_WIFI_AP_INFO_RESP, // 30071
+    IVY_CTRL_MSG_GET_CLOUD_ERROR_CODE, // 30072
+    IVY_CTRL_MSG_GET_CLOUD_ERROR_CODE_RESP,    // 30073                            // foscam ipc command
+    IVY_CTRL_MSG_GET_CURWIFI_LINK_QUALITY,    // 30074
+    IVY_CTRL_MSG_GET_CURWIFI_LINK_QUALITY_RESP,    // 30075
+    IVY_CTRL_MSG_SET_BT_MAC,            // 30076
+    IVY_CTRL_MSG_SET_BT_MAC_RESP,          // 30077
+    IVY_CTRL_MSG_GET_BT_MAC,            // 30078
+    IVY_CTRL_MSG_GET_BT_MAC_RESP,          // 30079
+
+    //alarm
+    IVY_CTRL_MSG_SET_AUDIO_ALARM_CONFIG = BASE_CTRL_MSG + 30000,
+    IVY_CTRL_MSG_SET_AUDIO_ALARM_CONFIG_RESP, // 32020
+    IVY_CTRL_MSG_GET_AUDIO_ALARM_CONFIG, // 32021
+    IVY_CTRL_MSG_GET_AUDIO_ALARM_CONFIG_RESP, // 32022
+    IVY_CTRL_MSG_SET_IO_ALARM_CONFIG, // 32023
+    IVY_CTRL_MSG_SET_IO_ALARM_CONFIG_RESP, // 32024
+    IVY_CTRL_MSG_GET_IO_ALARM_CONFIG, // 32025
+    IVY_CTRL_MSG_GET_IO_ALARM_CONFIG_RESP, // 32026
+    IVY_CTRL_MSG_SET_HUMIDITY_ALARM_CONFIG, // 32027
+    IVY_CTRL_MSG_SET_HUMIDITY_ALARM_CONFIG_RESP, // 32028
+    IVY_CTRL_MSG_GET_HUMIDITY_ALARM_CONFIG, // 32029
+    IVY_CTRL_MSG_GET_HUMIDITY_ALARM_CONFIG_RESP, // 32030
+    IVY_CTRL_MSG_SET_TEMPERATURE_ALARM_CONFIG, // 32031
+    IVY_CTRL_MSG_SET_TEMPERATURE_ALARM_CONFIG_RESP, // 32032
+    IVY_CTRL_MSG_GET_TEMPERATURE_ALARM_CONFIG, // 32033
+    IVY_CTRL_MSG_GET_TEMPERATURE_ALARM_CONFIG_RESP, // 32034
+    IVY_CTRL_MSG_CLEAN_IO_ALARM_OUTPUT, // 32035
+    IVY_CTRL_MSG_CLEAN_IO_ALARM_OUTPUT_RESP, // 32036
+    IVY_CTRL_MSG_SET_ONE_KEY_ALARM_CONFIG, // 32037
+    IVY_CTRL_MSG_SET_ONE_KEY_ALARM_CONFIG_RESP, // 32038
+    IVY_CTRL_MSG_GET_ONE_KEY_ALARM_CONFIG, // 32039
+    IVY_CTRL_MSG_GET_ONE_KEY_ALARM_CONFIG_RESP, // 32040
+    IVY_CTRL_MSG_SET_PEDESTRIAN_DECTECT_CONFIG, // 32041
+    IVY_CTRL_MSG_SET_PEDESTRIAN_DECTECT_CONFIG_RESP, // 32042
+    IVY_CTRL_MSG_GET_PEDESTRIAN_DECTECT_CONFIG, // 32043
+    IVY_CTRL_MSG_GET_PEDESTRIAN_DECTECT_CONFIG_RESP, // 32044
+    IVY_CTRL_MSG_SET_HUMAN_ALARM_CONFIG, // 32045
+    IVY_CTRL_MSG_SET_HUMAN_ALARM_CONFIG_RESP, // 32046
+    IVY_CTRL_MSG_GET_HUMAN_ALARM_CONFIG, // 32047
+    IVY_CTRL_MSG_GET_HUMAN_ALARM_CONFIG_RESP, // 32048
+    IVY_CTRL_MSG_GET_ALARM_TIME_CONFIG,    // 32049                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_ALARM_TIME_CONFIG_RESP, // 32050                                // foscam ipc command
+    IVY_CTRL_MSG_SET_ALARM_TIME_CONFIG,    // 32051                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_ALARM_TIME_CONFIG_RESP, // 32052                                // foscam ipc command
+    IVY_CTRL_MSG_GET_LOCAL_ALARM_TIME_CONFIG, // 32053                                // foscam ipc command
+    IVY_CTRL_MSG_GET_LOCAL_ALARM_TIME_CONFIG_RESP, // 32054                            // foscam ipc command
+    IVY_CTRL_MSG_SET_LOCAL_ALRAM_TIME_CONFIG, // 32055                                // foscam ipc command
+    IVY_CTRL_MSG_SET_LOCAL_ALARM_TIME_CONFIG_RESP, // 32056                            // foscam ipc command
+    IVY_CTRL_MSG_SET_PC_AUDIO_ALARM_CONFIG, // 32057                                // foscam ipc command
+    IVY_CTRL_MSG_SET_PC_AUDIO_ALARM_CONFIG_RESP, // 32058                            // foscam ipc command
+    IVY_CTRL_MSG_GET_PC_AUDIO_ALARM_CONFIG,    // 32059                                // foscam ipc command
+    IVY_CTRL_MSG_GET_PC_AUDIO_ALARM_CONFIG_RESP, // 32060                            // foscam ipc command
+    IVY_CTRL_MSG_SET_ALARM_HTTP_SERVER,    // 32061                                    // foscam ipc command
+    IVY_CTRL_MSG_SET_ALARM_HTTP_SERVER_RESP, // 32062                                // foscam ipc command
+    IVY_CTRL_MSG_GET_ALARM_HTTP_SERVER, // 32063                                    // foscam ipc command
+    IVY_CTRL_MSG_GET_ALARM_HTTP_SERVER_RESP, // 32064                                // foscam ipc command
+    IVY_CTRL_MSG_CHECK_AIWINN_LICENSE, // 32065                                        // foscam ipc command
+    IVY_CTRL_MSG_CHECK_AIWINN_LICENSE_RESP,    // 32066                                // foscam ipc command
+    IVY_CTRL_MSG_SET_DYNAMIC_TRACK_CONFIG, // 32067
+    IVY_CTRL_MSG_SET_DYNAMIC_TRACK_CONFIG_RESP, // 32068
+    IVY_CTRL_MSG_GET_DYNAMIC_TRACK_CONFIG, // 32069
+    IVY_CTRL_MSG_GET_DYNAMIC_TRACK_CONFIG_RESP, // 32070
+    IVY_CTRL_MSG_SET_PIR_ALARM_CONFIG,       //32071    foscam bpi command
+    IVY_CTRL_MSG_SET_PIR_ALARM_CONFIG_RESP, //32072    foscam bpi command
+    IVY_CTRL_MSG_GET_PIR_ALARM_CONFIG,        //32073    foscam bpi command
+    IVY_CTRL_MSG_GET_PIR_ALARM_CONFIG_RESP, //32074    foscam bpi command
+    IVY_CTRL_MSG_SET_BEE_VOLUME, // 32075
+    IVY_CTRL_MSG_SET_BEE_VOLUME_RESP, // 32076
+    IVY_CTRL_MSG_GET_BEE_VOLUME, // 32077
+    IVY_CTRL_MSG_GET_BEE_VOLUME_RESP, // 32078
+    IVY_CTRL_MSG_SET_SIREN_KEY_CALL_CONFIG,            // 32079
+    IVY_CTRL_MSG_SET_SIREN_KEY_CALL_CONFIG_RESP,    // 32080
+    IVY_CTRL_MSG_GET_SIREN_KEY_CALL_CONFIG,            // 32081
+    IVY_CTRL_MSG_GET_SIREN_KEY_CALL_CONFIG_RESP,    // 32082
+    IVY_CTRL_MSG_SET_SIREN_LINKAGE_CONFIG,            // 32083
+    IVY_CTRL_MSG_SET_SIREN_LINKAGE_CONFIG_RESP,        // 32084
+    IVY_CTRL_MSG_GET_SIREN_LINKAGE_CONFIG,            // 32085
+    IVY_CTRL_MSG_GET_SIREN_LINKAGE_CONFIG_RESP,        // 32086
+    IVY_CTRL_MSG_SET_CAR_LICENSE_PLATE_ALARM_CONFIG,           //32087
+    IVY_CTRL_MSG_SET_CAR_LICENSE_PLATE_ALARM_CONFIG_RESP,    //32088
+    IVY_CTRL_MSG_GET_CAR_LICENSE_PLATE_ALARM_CONFIG,        //32089
+    IVY_CTRL_MSG_GET_CAR_LICENSE_PLATE_ALARM_CONFIG_RESP,    //32090
+    IVY_CTRL_MSG_SET_MOTOR_VEHICLE_ALARM_CONFIG,            //32091
+    IVY_CTRL_MSG_SET_MOTOR_VEHICLE_ALARM_CONFIG_RESP,        //32092
+    IVY_CTRL_MSG_GET_MOTOR_VEHICLE_ALARM_CONFIG,            //32093
+    IVY_CTRL_MSG_GET_MOTOR_VEHICLE_ALARM_CONFIG_RESP,        //32094
+    IVY_CTRL_MSG_SET_NON_MOTOR_VEHICLE_ALARM_CONFIG,        //32095
+    IVY_CTRL_MSG_SET_NON_MOTOR_VEHICLE_ALARM_CONFIG_RESP,    //32096
+    IVY_CTRL_MSG_GET_NON_MOTOR_VEHICLE_ALARM_CONFIG,        //32097
+    IVY_CTRL_MSG_GET_NON_MOTOR_VEHICLE_ALARM_CONFIG_RESP,    //32098
+    IVY_CTRL_MSG_SET_FACE_DETECT_ALARM_CONFIG,                //32099
+    IVY_CTRL_MSG_SET_FACE_DETECT_ALARM_CONFIG_RESP,            //32100
+    IVY_CTRL_MSG_GET_FACE_DETECT_ALARM_CONFIG,                //32101
+    IVY_CTRL_MSG_GET_FACE_DETECT_ALARM_CONFIG_RESP,            //32102
+    IVY_CTRL_MSG_SET_FACE_RECOGNITION_ALARM_CONFIG,            //32103
+    IVY_CTRL_MSG_SET_FACE_RECOGNITION_ALARM_CONFIG_RESP,    //32104
+    IVY_CTRL_MSG_GET_FACE_RECOGNITION_ALARM_CONFIG,            //32105
+    IVY_CTRL_MSG_GET_FACE_RECOGNITION_ALARM_CONFIG_RESP,    //32106
+    IVY_CTRL_MSG_SET_HUMAN_TRACKING_CONFIG,                    //32107
+    IVY_CTRL_MSG_SET_HUMAN_TRACKING_CONFIG_RESP,            //32108
+    IVY_CTRL_MSG_GET_HUMAN_TRACKING_CONFIG,                    //32109
+    IVY_CTRL_MSG_GET_HUMAN_TRACKING_CONFIG_RESP,            //32110
+
+
+
+    //Foscam Cloud
+    IVY_CTRL_MSG_SET_PUSH_CONFIG = BASE_CTRL_MSG + 32000,
+    IVY_CTRL_MSG_SET_PUSH_CONFIG_RESP, // 34020
+    IVY_CTRL_MSG_GET_PUSH_CONFIG, // 34021
+    IVY_CTRL_MSG_GET_PUSH_CONFIG_RESP, // 34022
+    IVY_CTRL_MSG_SET_CLOUD_CONFIG, // 34023
+    IVY_CTRL_MSG_SET_CLOUD_CONFIG_RESP, // 34024
+    IVY_CTRL_MSG_GET_CLOUD_CONFIG, // 34025
+    IVY_CTRL_MSG_GET_CLOUD_CONFIG_RESP, // 34026
+    IVY_CTRL_MSG_SET_RTMP_CONFIG, // 34027
+    IVY_CTRL_MSG_SET_RTMP_CONFIG_RESP, // 34028
+    IVY_CTRL_MSG_GET_RTMP_CONFIG, // 34029
+    IVY_CTRL_MSG_GET_RTMP_CONFIG_RESP, // 34030
+    IVY_CTRL_MSG_SET_ALEXA_ENABLE, // 34031
+    IVY_CTRL_MSG_SET_ALEXA_ENABLE_RESP, // 34032
+    IVY_CTRL_MSG_GET_ALEXA_ENABLE, // 34033
+    IVY_CTRL_MSG_GET_ALEXA_ENABLE_RESP, // 34034
+    IVY_CTRL_MSG_SET_ALEXA_SLEEP, // 34035
+    IVY_CTRL_MSG_SET_ALEXA_SLEEP_RESP, // 34036
+    IVY_CTRL_MSG_SET_ALEXA_SERVER, // 34037
+    IVY_CTRL_MSG_SET_ALEXA_SERVER_RESP, // 34038
+    IVY_CTRL_MSG_GET_ALEXA_STATE, // 34039
+    IVY_CTRL_MSG_GET_ALEXA_STATE_RESP, // 34040
+    IVY_CTRL_MSG_SET_ALEXA_WAKEUP, // 34041
+    IVY_CTRL_MSG_SET_ALEXA_WAKEUP_RESP, // 34042
+    IVY_CTRL_MSG_TEST_PUSH, // 34043
+    IVY_CTRL_MSG_TEST_PUSH_RESP, // 34044
+    IVY_CTRL_MSG_SET_CHANNEL_SVR_EANBLE_BITS, // 34045
+    IVY_CTRL_MSG_SET_CHANNEL_SVR_EANBLE_BITS_RESP, // 34046
+    IVY_CTRL_MSG_GET_CHANNEL_SVR_EANBLE_BITS, // 34047
+    IVY_CTRL_MSG_GET_CHANNEL_SVR_EANBLE_BITS_RESP, // 34048
+    IVY_CTRL_MSG_DROPBOX_GET_CLOUD_TOKEN, // 34049
+    IVY_CTRL_MSG_DROPBOX_GET_CLOUD_TOKEN_RESP, // 34050                // For OEM foscam ipc
+    IVY_CTRL_MSG_DROPBOX_GET_CLOUD_QUOTA, // 34051                    // For OEM foscam ipc
+    IVY_CTRL_MSG_DROPBOX_GET_CLOUD_QUOTA_RESP, // 34052
+    IVY_CTRL_MSG_DROPBOX_TEST_CLOUD_SERVER,    // 34053                // For OEM foscam ipc
+    IVY_CTRL_MSG_DROPBOX_TEST_CLOUD_SERVER_RESP, // 34054            // For OEM foscam ipc
+    IVY_CTRL_MSG_DROPBOX_GET_CLOUD_CONFIG, // 34055                    // For OEM foscam ipc
+    IVY_CTRL_MSG_DROPBOX_GET_CLOUD_CONFIG_RESP, // 34056
+    IVY_CTRL_MSG_DROPBOX_SET_CLOUD_CONFIG, // 34057                    // For oem foscam ipc
+    IVY_CTRL_MSG_DROPBOX_SET_CLOUD_CONFIG_RESP, // 34058
+    IVY_CTRL_MSG_GET_ALEXA_SERVER,    // 34059
+    IVY_CTRL_MSG_GET_ALEXA_SERVER_RESP, // 34060
+    IVY_CTRL_MSG_SET_PUSH_INTERVAL,    // 34061                        // For foscam
+    IVY_CTRL_MSG_SET_PUSH_INTERVAL_RESP, // 34062                    //
+    IVY_CTRL_MSG_GET_PUSH_INTERVAL, // 34063                        // For foscam
+    IVY_CTRL_MSG_GET_PUSH_INTERVAL_RESP, // 34064
+    IVY_CTRL_MSG_SET_SWITCH_H264_H265_RESOLUATION_FOR_ALEAX, // 34065  // For Ivy device, switch h264/265 with fixed resolution, 1: enable h264 0:disable h265
+    IVY_CTRL_MSG_SET_SWITCH_H264_H265_RESOLUATION_FOR_ALEAX_RESP, // 34066
+    IVY_CTRL_MSG_GET_SWITCH_H264_H265_RESOLUATION_FOR_ALEAX,    // 34067
+    IVY_CTRL_MSG_GET_SWITCH_H264_H265_RESOLUATION_FOR_ALEAX_RESP, // 34068
+    IVY_CTRL_MSG_GET_KVS_CONFIG,        // 34069
+    IVY_CTRL_MSG_GET_KVS_CONFIG_RESP,    // 34070
+    IVY_CTRL_MSG_SET_KVS_CONFIG,        // 34071
+    IVY_CTRL_MSG_SET_KVS_CONFIG_RESP,    // 34072
+    IVY_CTRL_MSG_SET_SLEEP_TIMER,        // 34073 For ivy
+    IVY_CTRL_MSG_SET_SLEEP_TIMER_RESP,   // 34074 For ivy
+    
+
+
+    //NVR
+    IVY_CTRL_MSG_ADD_IPC = BASE_CTRL_MSG + 34000,
+    IVY_CTRL_MSG_ADD_IPC_RESP, // 36020
+    IVY_CTRL_MSG_DEL_IPC, // 36021
+    IVY_CTRL_MSG_DEL_IPC_RESP, // 36022
+    IVY_CTRL_MSG_GET_IPC_LIST_INFO, // 36023
+    IVY_CTRL_MSG_GET_IPC_LIST_INFO_RESP, // 36024
+    IVY_CTRL_MSG_GET_AUDIO_METHOD, // 36025                            // Foscam nvr
+    IVY_CTRL_MSG_GET_AUDIO_METHOD_RESP, // 36026                    // Foscam nvr
+    IVY_CTRL_MSG_GET_ONE_IPC_INFO_ON_LIST, // 36027                    // Foscam nvr
+    IVY_CTRL_MSG_GET_ONE_IPC_INFO_ON_LIST_RESP,    // 36028            // Foscam nvr
+    IVY_CTRL_MSG_GET_WIFI_CHANNEL, // 36029                            // Foscam nvr
+    IVY_CTRL_MSG_GET_WIFI_CHANNEL_RESP,    // 36030                    // Foscam nvr
+    IVY_CTRL_MSG_SET_WIFI_CHANNEL, // 36031                            // Foscam nvr
+    IVY_CTRL_MSG_SET_WIFI_CHANNEL_RESP,    // 36032                    // Foscam nvr
+    IVY_CTRL_MSG_GET_INTELLIGET_RECORD,    // 36033                    // Foscam nvr
+    IVY_CTRL_MSG_GET_INTELLIGET_RECORD_RESP, // 36034                // Foscam nvr
+    IVY_CTRL_MSG_SET_INTELLIGET_RECORD,    // 36035                    // Foscam nvr
+    IVY_CTRL_MSG_SET_INTELLIGET_RECORD_RESP, // 36036                // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_AUTO_ADD_DEVICES, // 36037                // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_AUTO_ADD_DEVICES_RESP, // 36038            // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_AUTO_ADD_DEVICES, // 36039                // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_AUTO_ADD_DEVICES_RESP, // 36040            // Foscam nvr
+    IVY_CTRL_MSG_GET_PTZ_ABILITY, // 36041                            // Foscam nvr
+    IVY_CTRL_MSG_GET_PTZ_ABILITY_RESP, // 36042                        // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_HDD_LOST, // 36043                // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_HDD_LOST_RESP, // 36044            // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_HDD_LOST, // 36045                // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_HDD_LOST_RESP, // 36046            // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_HDD_FULL, // 36047                // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_HDD_FULL_RESP, // 36048            // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_HDD_FULL, // 36049                // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_HDD_FULL_RESP, // 36050            // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_HDD_ERROR, // 36051                // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_HDD_ERROR_RESP, // 36052            // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_HDD_ERROR, // 36053                // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_HDD_ERROR_RESP, // 36054            // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_VIDEO_LOST, // 36055                // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_VIDEO_LOST_RESP, // 36056        // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_VIDEO_LOST, // 36057                // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_VIDEO_LOST_RESP,    // 36058        // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_NET_ERROR, // 36059                // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_BUZZER_NET_ERROR_RESP, // 36060            // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_NET_ERROR, // 36061                // Foscam nvr
+    IVY_CTRL_MSG_GET_ENABLE_BUZZER_NET_ERROR_RESP, // 36062            // Foscam nvr
+    IVY_CTRL_MSG_SET_ENABLE_VIDEO_MASK,    // 36063                    // foscam nvr command
+    IVY_CTRL_MSG_SET_ENABLE_VIDEO_MASK_RESP, // 36064                // foscam nvr command
+    IVY_CTRL_MSG_GET_ENABLE_VIDEO_MASK,    // 36065                    // foscam nvr command
+    IVY_CTRL_MSG_GET_ENABLE_VIDEO_MASK_RESP, // 36066                // foscam nvr command
+    IVY_CTRL_MSG_GET_ACCOUNTS_INFORMATION, // 36067                    // foscam nvr
+    IVY_CTRL_MSG_GET_ACCOUNTS_INFORMATION_RESP, // 36068            // foscam nvr
+    IVY_CTRL_MSG_SET_ACCOUNTS_INFORMATION, // 36069                    // foscam nvr
+    IVY_CTRL_MSG_SET_ACCOUNTS_INFORMATION_RESP,    // 36070            // foscam nvr
+    IVY_CTRL_MSG_SET_DISK_INFO,    // 36071                            // foscam nvr
+    IVY_CTRL_MSG_SET_DISK_INFO_RESP, // 36072                        // foscam nvr
+    IVY_CTRL_MSG_SEARCH_DEVS_BY_NVR, // 36073                        // foscam nvr
+    IVY_CTRL_MSG_SEARCH_DEVS_BY_NVR_RESP, // 36074                    // foscam nvr
+    IVY_CTRL_MSG_GET_STREAM_CAPABILITY,    // 36075                    // foscam nvr
+    IVY_CTRL_MSG_GET_STREAM_CAPBILITY_RESP,    // 36076                // foscam nvr
+
+    //Event msg
+    IVY_CTRL_MSG_ONLINE_UPGRADE_STATE = BASE_CTRL_MSG + 40000, // 42019
+    IVY_CTRL_MSG_IPCLIST_CHG, // 42020
+
+    IVY_CTRL_MSG_MIRROR_FLIP_CHG, // 42021                        // for foscam device
+    IVY_CTRL_MSG_DAY_NIGHT_MODE_CHG, // 42022                    // (IRCUT? For foscam device)
+    IVY_CTRL_MSG_PRESET_CHG, // 42023                            // for foscam device
+    IVY_CTRL_MSG_CRUISE_CHG, // 42024                            // for foscam device
+    IVY_CTRL_MSG_PRESET_REACHED, // 42025                        // for foscam device
+    IVY_CTRL_MSG_CURRENT_CRUISE_MAP_STATE_CHG, // 42026            // for foscam device
+    IVY_CTRL_MSG_EDGE_ARRIVED, // 42027                            // for foscam device
+    IVY_CTRL_MSG_START_PLAY_RESULT, // 42028                    // only for foscam device
+    IVY_CTRL_MSG_GET_PRODUCT_ALL_INFO, // 42029                    // only for foscam device
+    IVY_CTRL_MSG_CHANNEL_STATE_CHG, // 42030                    // no use
+    IVY_CTRL_MSG_ARRIVE_MAX_DURATION, // 42031                    // only for foscam bpi
+    IVY_CTRL_MSG_EXT_STATE_CHG, // 42032                        // only for foscam bpi
+    IVY_CTRL_MSG_STREAM_PARAM_CHG, // 42033                        // only for foscam ipc
+    IVY_CTRL_MSG_SUB_STREAM_PARAM_CHG, // 42034                    // only for foscam ipc
+    IVY_CTRL_MSG_STREAM_TYPE_CHG, // 42035                        // only for foscam ipc
+    IVY_CTRL_MSG_SUB_STREAM_TYPE_CHG, // 42036                    // only for foscam ipc
+    IVY_CTRL_MSG_ABILITY_CHG, // 42037                            // Foscam NVR BPI use, maybe IVY Nvr use
+    IVY_CTRL_MSG_VOLUME_CHG, // 42038                            // Foscam IPC use
+    IVY_CTRL_MSG_RECORD_ERROR_NO_ENOUGE_SPACE_RESERVE, // 42039    // not use
+    IVY_CTRL_MSG_RECORD_ERROR_MAX_FILE_RESERVE, // 42040        // not use
+    IVY_CTRL_MSG_RECORD_ERROR_SOLUTION_CHG_RESERVE, // 42041    // not use
+    IVY_CTRL_MSG_RECORD_ERROR_FILE_PATH_NOEXIST_RESERVE, // 42042            // not use
+    IVY_CTRL_MSG_RECORD_ERROR_UNKNOW_RESERVE, // 42043                        // not use
+    IVY_CTRL_MSG_MUSIC_STATE_CHG, // 42044                                    // Foscam IPC use
+    IVY_CTRL_MSG_BIND_DEVICE_STATE_CHG, // 42045                            // Foscam BPI use, mybe IVY BPI use
+    IVY_CTRL_MSG_STREAM_MODE_CHG, // 42046                                    //for Ivy device
+    IVY_CTRL_MSG_ALARM_CHG, // 42047                                        // For foscam ipc
+    IVY_CTRL_MSG_IMPORT_CFG_RESULT_CHG, // 42048                            // For foscam ipc
+    IVY_CTRL_MSG_PC_ALARM_CHG, // 42049                                        // For foscam ipc
+    IVY_CTRL_MSG_IMAGE_COLOR_CHG, // 42050                                    // For foscam ipc
+    IVY_CTRL_MSG_WDR_CHG, // 42051                                            // For foscam ipc
+    IVY_CTRL_MSG_DOORBELL_CALL_STATUS, // 42052                                //For Ivy Sdk,  anposi doorbell
+    IVY_CTRL_MSG_WHITE_LIGHT_STATE_CHG, // 42053                            // For foscam ipc
+    IVY_CTRL_MSG_SD_RECORD_STATE_CHG, // 42054                                // For foscam ipc
+    IVY_CTRL_MSG_STREAM_FMT_CHG, // 42055                                    // For foscam ipc
+    IVY_CTRL_MSG_RESPONSE_NVR_IPC_PAIRING_STATUS, // 42056
+    IVY_CTRL_MSG_WAKEUP_ASLEEP_CHG, // 42057                                    // For foscam ipc
+    IVY_CTRL_MSG_SDCARD_STATE_CHG,  // 42058                  // For ivy bpi
+    IVY_CTRL_MSG_BATTERY_QUANTITY_CHG,  // 42059                // For ivy bpi
+    IVY_CTRL_MSG_LIGHT_VISION_CHG        // 42060                for ivy / foscam device
+
+    // Internal common cmd for third part
+    //BASE_CTRL_MSG + 60000
+};
+
+// PTZ CMD
+typedef enum
+{
+    IVY_PTZ_STOP = 0, // 0
+    IVY_PTZ_RESET,  // 1
+    IVY_PTZ_MOVE_UP, // 2
+    IVY_PTZ_MOVE_DOWN, // 3
+    IVY_PTZ_MOVE_LEFT, // 4
+    IVY_PTZ_MOVE_RIGHT, // 5
+    IVY_PTZ_MOVE_LEFTUP, // 6
+    IVY_PTZ_MOVE_LEFTDOWN, // 7
+    IVY_PTZ_MOVE_RIGHTUP, // 8
+    IVY_PTZ_MOVE_RIGHTDOWN, // 9
+    IVY_PTZ_SET_SPEED, // 10
+    IVY_PTZ_ZOOM_IN, // 11
+    IVY_PTZ_ZOOM_OUT, // 12
+    IVY_PTZ_ZOOM_STOP, // 13
+    IVY_PTZ_SET_ZOOM_SPEED, //14
+    IVY_PTZ_GET_ZOOM_SPEED, // 15
+    IVY_PTZ_FOCUS_NEAR, // 16
+    IVY_PTZ_FOCUS_FAR, // 17
+    IVY_PTZ_FOCUS_STOP, // 18
+    IVY_PTZ_GOTO_SLEEP, // 19
+    IVY_PTZ_GOTO_WAKEUP, // 20
+    IVY_PTZ_SET_PRESET_POINT, // 21
+    IVY_PTZ_GOTO_PRESET_POINT, // 22
+    IVY_PTZ_CLEAR_PRESET_POINT, // 23
+    IVY_PTZ_GET_PRESET_POINT_LIST, // 24
+    IVY_PTZ_SET_GUARD_POSITION, // 25
+    IVY_PTZ_GET_GUARD_POSITION, // 26
+    IVY_PTZ_START_CRUISE, // 27
+    IVY_PTZ_STOP_CRUISE, // 28
+    IVY_PTZ_SET_CURISE_MAP, // 29
+    IVY_PTZ_CLEAR_CURISE, // 30
+    IVY_PTZ_GET_CRUISE_MAP_INFO, // 31
+    IVY_PTZ_SET_CURISE_CTRL_TIME, // 32
+    IVY_PTZ_GET_CRUISE_MAP_LIST, // 33
+    IVY_PTZ_SET_CRUISE_CTRL_MODE, // 34
+    IVY_PTZ_GET_CRUISE_CTRL_MODE, // 35
+    IVY_PTZ_SET_CRUISE_TIME_CUSTOMED, // 36
+    IVY_PTZ_GET_CRUISE_TIME_CUSTOMED, // 37
+    IVY_PTZ_SET_CRUISE_TIME, // 38
+    IVY_PTZ_GET_CRUISE_TIME, // 39
+    IVY_PTZ_SET_SELF_TEST_MODE, // 40
+    IVY_PTZ_GET_SELF_TEST_MODE, // 41
+    IVY_PTZ_SET_PRE_POINT_FOR_SELF_TEST, // 42
+    IVY_PTZ_GET_PRE_POINT_FOR_SELF_TEST, // 43
+    IVY_PTZ_GET_SPEED, // 44
+    IVY_PTZ_SET_CRUISE_PRESET_POINT_LINGER_TIME, // 45
+    IVY_PTZ_GET_CRUISE_PRESET_POINT_LINGER_TIME, // 46
+    IVY_PTZ_SET_CRUISE_LOOP_COUNT, // 47
+    IVY_PTZ_GET_CRUISE_LOOP_COUNT, // 48
+    IVY_PTZ_DEL_CRUISE_MAP_INFO, //49
+    
+    IVY_PTZ_MAX_CMD = 100
+} IVY_PTZ_CMD;
+
+/// 播放器命令
+/// - IvyPlayerOpenVideo: 打开视频
+/// - IvyPlayerCloseVideo: 关闭视频
+/// - IvyPlayerOpenAudio: 打开音频
+/// - IvyPlayerCloseAudio: 关闭音频
+/// - IvyPlayerOpenTalk: 打开对讲
+/// - IvyPlayerCloseTalk: 关闭对讲
+/// - IvyPlayerPause: 暂停
+/// - IvyPlayerResume: 继续
+/// - IvyPlayerSeek: Seek
+/// - IvyPlayerFinished: 播放完成
+/// - IvyPlayerStopped: 播放器已经停止 （调用stop方法的结果回调）
+typedef NS_ENUM(NSInteger, IvyPlayerCommand) {
+    IvyPlayerOpenVideo = 0,
+    IvyPlayerCloseVideo = 1,
+    IvyPlayerOpenAudio = 2,
+    IvyPlayerCloseAudio = 3,
+    IvyPlayerOpenTalk = 4,
+    IvyPlayerCloseTalk = 5,
+    IvyPlayerPause = 6,
+    IvyPlayerResume = 7,
+    IvyPlayerSeek = 8,
+    IvyPlayerFinished = 9,
+    IvyPlayerStopped = 10,
+    
+    IvyPlayerUnkown = 0xFF,
+};
+
+/// 设备类型
+/// - IvyDeviceIVY: IVY设备
+/// - IvyDeviceFOS: FOS设备
+typedef NS_ENUM(NSInteger, IvyDeviceType) {
+    IvyDeviceIVY,
+    IvyDeviceFOS,
+};
+
+/// 设备清晰度类型
+/// - IvyDefinitionSD: SD
+/// - IvyDefinitionHD: HD
+/// - IvyDefinitionFHD: FHD
+/// - IvyDefinitionQHD: QHD
+typedef NS_ENUM(NSInteger, IvyDefinitionType) {
+    IvyDefinitionSD,
+    IvyDefinitionHD,
+    IvyDefinitionFHD,
+    IvyDefinitionQHD,
+};
+
+/// 视频码流类型
+/// - IvyVideoStreamMain: 主码流
+/// - IvyVideoStreamSub: 子码流
+typedef NS_ENUM(NSInteger, IvyVideoStreamType) {
+    IvyVideoStreamMain,
+    IvyVideoStreamSub,
+};
+
+/// Wi-Fi配网声波、二维码内容格式
+/// - IvyWiFiConfigTypeDefault: 默认格式
+/// - IvyWiFiConfigTypeNormal: 普通格式
+/// - IvyWiFiConfigTypeBriefness: 简洁格式
+typedef NS_ENUM(NSInteger, IvyWiFiConfigType) {
+    IvyWiFiConfigTypeDefault = 0,
+    IvyWiFiConfigTypeNormal = 1,
+    IvyWiFiConfigTypeBriefness = 2,
+};
+
+/// 视频数据解码类型
+/// - IvyVideoDecodeUIImage: UIImage
+/// - IvyVideoDecodeRawData: H264、H265数据
+/// - IvyVideoDecodeYUV420: YUV420
+/// - IvyVideoDecodeYUYV422: YUYV422
+/// - IvyVideoDecodeUYVY422: UYVY422
+/// - IvyVideoDecodeRGB24: RGB24
+/// - IvyVideoDecodeBGR24: BGR24
+/// - IvyVideoDecodeRGBA32: RGBA32
+/// - IvyVideoDecodeARGB32: ARGB32
+/// - IvyVideoDecodeABGR32: ABGR32
+/// - IvyVideoDecodeBGRA32: BGRA32
+/// - IvyVideoDecodeRGB565BE: RGB565BE
+/// - IvyVideoDecodeRGB565LE: RGB565LE
+/// - IvyVideoDecodeBGR565BE: BGR565BE
+/// - IvyVideoDecodeBGR565LE: BGR565LE
+typedef NS_ENUM(NSInteger, IvyVideoDecodeType) {
+    IvyVideoDecodeUIImage,
+    IvyVideoDecodeRawData,
+    
+    IvyVideoDecodeYUV420,
+    IvyVideoDecodeYUYV422,
+    IvyVideoDecodeUYVY422,
+    
+    IvyVideoDecodeRGB24,
+    IvyVideoDecodeBGR24,
+    IvyVideoDecodeRGBA32,
+    IvyVideoDecodeARGB32,
+    IvyVideoDecodeABGR32,
+    IvyVideoDecodeBGRA32,
+    
+    IvyVideoDecodeRGB565BE,
+    IvyVideoDecodeRGB565LE,
+    IvyVideoDecodeBGR565BE,
+    IvyVideoDecodeBGR565LE,
+};
+
+#endif /* IvyConstants_h */

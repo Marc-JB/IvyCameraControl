@@ -1,0 +1,16 @@
+PODS:
+  - IvyCameraControl (1.0)
+
+DEPENDENCIES:
+  - IvyCameraControl (from `../composeApp`)
+
+EXTERNAL SOURCES:
+  IvyCameraControl:
+    :path: "../composeApp"
+
+SPEC CHECKSUMS:
+  IvyCameraControl: 1e3362448cad69d0d357342d2eeec94f40b4e26e
+
+PODFILE CHECKSUM: b8fa41e4939a454dd7d726dd1e0a7f0ce16bc466
+
+COCOAPODS: 1.16.2

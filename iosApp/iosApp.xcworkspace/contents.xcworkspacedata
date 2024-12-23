@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:iosApp.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Pods/Pods.xcodeproj">
+   </FileRef>
+   <Group
+      location = "group:Kotlin"
+      name = "Kotlin">
+      <Group
+         location = "container:../composeApp/src/commonMain"
+         name = "commonMain">
+         <Group
+            location = "group:composeResources"
+            name = "composeResources">
+            <Group
+               location = "group:values"
+               name = "values">
+               <FileRef
+                  location = "group:strings.xml">
+               </FileRef>
+            </Group>
+         </Group>
+         <Group
+            location = "group:kotlin"
+            name = "kotlin">
+            <Group
+               location = "group:nl"
+               name = "nl">
+               <Group
+                  location = "group:marc_apps"
+                  name = "marc_apps">
+                  <Group
+                     location = "group:ivycameracontrol"
+                     name = "ivycameracontrol">
+                     <Group
+                        location = "group:ui"
+                        name = "ui">
+                        <FileRef
+                           location = "group:MainViewModel.kt">
+                        </FileRef>
+                        <FileRef
+                           location = "group:MainPage.kt">
+                        </FileRef>
+                        <Group
+                           location = "group:navigation"
+                           name = "navigation">
+                           <FileRef
+                              location = "group:Routes.kt">
+                           </FileRef>
+                        </Group>
+                        <FileRef
+                           location = "group:CameraDetailPage.kt">
+                        </FileRef>
+                        <Group
+                           location = "group:components"
+                           name = "components">
+                           <FileRef
+                              location = "group:NavigateUpButton.kt">
+                           </FileRef>
+                           <FileRef
+                              location = "group:BackGestureHandler.kt">
+                           </FileRef>
+                           <FileRef
+                              location = "group:PlatformAlignedTopAppBar.kt">
+                           </FileRef>
+                        </Group>
+                     </Group>
+                     <Group
+                        location = "group:di"
+                        name = "di">
+                        <FileRef
+                           location = "group:IvyModule.kt">
+                        </FileRef>
+                        <FileRef
+                           location = "group:DependencyInjection.kt">
+                        </FileRef>
+                     </Group>
+                     <FileRef
+                        location = "group:IvyCameraControlApp.kt">
+                     </FileRef>
+                     <Group
+                        location = "group:platform"
+                        name = "platform">
+                        <FileRef
+                           location = "group:TopAppBarStyle.kt">
+                        </FileRef>
+                        <FileRef
+                           location = "group:PlatformBackHandling.kt">
+                        </FileRef>
+                        <FileRef
+                           location = "group:PlatformNavigateUpIcon.kt">
+                        </FileRef>
+                     </Group>
+                     <Group
+                        location = "group:utils"
+                        name = "utils">
+                        <FileRef
+                           location = "group:NavControllerUtils.kt">
+                        </FileRef>
+                     </Group>
+                  </Group>
+               </Group>
+            </Group>
+         </Group>
+      </Group>
+      <Group
+         location = "container:../composeApp/src/iosMain"
+         name = "iosMain">
+         <Group
+            location = "group:kotlin"
+            name = "kotlin">
+            <Group
+               location = "group:nl"
+               name = "nl">
+               <Group
+                  location = "group:marc_apps"
+                  name = "marc_apps">
+                  <Group
+                     location = "group:ivycameracontrol"
+                     name = "ivycameracontrol">
+                     <Group
+                        location = "group:di"
+                        name = "di">
+                        <FileRef
+                           location = "group:IvyModule.kt">
+                        </FileRef>
+                     </Group>
+                     <FileRef
+                        location = "group:MainViewController.kt">
+                     </FileRef>
+                     <Group
+                        location = "group:platform"
+                        name = "platform">
+                        <FileRef
+                           location = "group:TopAppBarStyle.kt">
+                        </FileRef>
+                        <FileRef
+                           location = "group:PlatformBackHandling.kt">
+                        </FileRef>
+                     </Group>
+                     <Group
+                        location = "group:utils"
+                        name = "utils">
+                        <FileRef
+                           location = "group:ErrorPointerUtils.kt">
+                        </FileRef>
+                     </Group>
+                     <FileRef
+                        location = "group:Startup.kt">
+                     </FileRef>
+                  </Group>
+               </Group>
+            </Group>
+         </Group>
+      </Group>
+   </Group>
+</Workspace>
