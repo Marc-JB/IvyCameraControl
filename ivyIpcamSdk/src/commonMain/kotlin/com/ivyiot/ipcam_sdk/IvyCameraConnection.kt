@@ -4,6 +4,4 @@ interface IvyCameraConnection: AutoCloseable {
     val uid: String
 
     val username: String
-
-
 }

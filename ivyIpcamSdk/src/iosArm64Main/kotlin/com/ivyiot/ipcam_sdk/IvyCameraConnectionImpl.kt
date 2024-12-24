@@ -1,6 +1,9 @@
 package com.ivyiot.ipcam_sdk
 
 import com.ivyiot.ipclibrary.sdk.IvyCamera
+import com.ivyiot.ipclibrary.sdk.IvyPlayer
+import com.ivyiot.ipclibrary.sdk.IvyPlayerDelegateProtocol
+import com.ivyiot.ipclibrary.sdk.IvyVideoDecodeType
 import com.ivyiot.ipclibrary.sdk.addEventObserver
 import com.ivyiot.ipclibrary.sdk.destroyCamera
 import com.ivyiot.ipclibrary.sdk.deviceUID
@@ -15,6 +18,9 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.serialization.json.internal.decodeToSequenceByReader
 import platform.Foundation.NSData
 import platform.Foundation.NSDictionary
@@ -27,6 +33,7 @@ import platform.Foundation.NSUTF8StringEncoding
 import platform.Foundation.allKeys
 import platform.Foundation.dictionaryWithDictionary
 import platform.Foundation.initWithData
+import platform.UIKit.UIImage
 import platform.darwin.NSInteger
 import platform.darwin.NSObject
 import platform.darwin.sel_registerName
@@ -67,6 +74,22 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     override val username = ivyCamera.username
 
+    private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
+    val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
+
+    private var isLiveStreamActive = false
+
+    var onImageAvailable: ((UIImage) -> Unit)? = null
+
+    private val ivyPlayerDelegate = IvyPlayerDelegateImpl {
+        mutableLiveStreamImageFlow.update { it }
+        onImageAvailable?.invoke(it)
+    }
+
+    private val ivyPlayer = IvyPlayer().also {
+        it.delegate = ivyPlayerDelegate
+    }
+
     private val eventHandler = EventHandler {
         val eventId = it.objectForKey("eventId") as? NSNumber
         println("Received message: id = ${eventId?.unsignedIntValue}; data = ${it.toJsonString()}")
@@ -76,10 +99,32 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         eventHandler.addObserver(ivyCamera)
     }
 
+    fun playLiveStream() {
+        if (!isLiveStreamActive) {
+            ivyPlayer.playLive(ivyCamera, IvyVideoDecodeType.IvyVideoDecodeUIImage)
+            isLiveStreamActive = true
+        }
+    }
+
+    fun stopLiveStream() {
+        if (isLiveStreamActive) {
+            mutableLiveStreamImageFlow.update { null }
+            isLiveStreamActive = false
+            ivyPlayer.stop()
+        }
+    }
+
     override fun close() {
+        stopLiveStream()
         eventHandler.removeObserver(ivyCamera)
         ivyCamera.logoutCamera()
         ivyCamera.destroyCamera()
+    }
+}
+
+class IvyPlayerDelegateImpl(val frameReceived: (UIImage) -> Unit) : NSObject(), IvyPlayerDelegateProtocol {
+    override fun ivyPlayer(ivyPlayer: IvyPlayer, didReciveFrame: UIImage, isFirstFrame: Boolean) {
+        frameReceived(didReciveFrame)
     }
 }
 

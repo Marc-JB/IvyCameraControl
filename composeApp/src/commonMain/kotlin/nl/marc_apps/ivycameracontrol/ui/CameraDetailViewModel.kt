@@ -6,12 +6,14 @@ import com.ivyiot.ipcam_sdk.IvyCameraConnection
 import com.ivyiot.ipcam_sdk.IvySdk
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel
 
 @KoinViewModel
 class CameraDetailViewModel(private val ivySdk: IvySdk) : ViewModel() {
-    private var ivyCameraConnection: IvyCameraConnection? = null
+    var ivyCameraConnection: IvyCameraConnection? = null
+        private set
 
     private val mutableIsLoggedIn = MutableStateFlow(false)
     val isLoggedIn = mutableIsLoggedIn.asStateFlow()
@@ -19,10 +21,12 @@ class CameraDetailViewModel(private val ivySdk: IvySdk) : ViewModel() {
     fun login(uid: String, username: String, password: String) {
         viewModelScope.launch {
             ivyCameraConnection = ivySdk.login(uid, username, password)
+            mutableIsLoggedIn.update { true }
         }
     }
 
     fun logout() {
+        mutableIsLoggedIn.update { false }
         ivyCameraConnection?.close()
     }
 }

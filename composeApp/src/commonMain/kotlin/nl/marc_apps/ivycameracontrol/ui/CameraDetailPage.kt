@@ -1,7 +1,11 @@
 package nl.marc_apps.ivycameracontrol.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -17,16 +21,19 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastJoinToString
 import androidx.navigation.NavController
+import com.ivyiot.ipcam_sdk.IvyLivePlayer
 import com.ivyiot.ipcam_sdk.LocalCamera
 import nl.marc_apps.ivycameracontrol.ui.components.NavigateUpButton
 import nl.marc_apps.ivycameracontrol.ui.components.PlatformAlignedTopAppBar
@@ -42,6 +49,7 @@ fun CameraDetailPage(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState(false)
 
     Scaffold(
         topBar = {
@@ -63,41 +71,51 @@ fun CameraDetailPage(
 
             Text("${camera.ipAddress}:${camera.port}")
 
-            TextField(username,
-                onValueChange = {
-                    username = it
-                },
-                label = { Text("Username") },
-                singleLine = true)
+            if (isLoggedIn) {
+                IvyLivePlayer(
+                    viewModel.ivyCameraConnection!!,
+                    modifier = Modifier
+                        .aspectRatio(16f / 9f)
+                        .fillMaxWidth()
+                        .heightIn(max = 400.dp)
+                )
+            } else {
+                TextField(username,
+                    onValueChange = {
+                        username = it
+                    },
+                    label = { Text("Username") },
+                    singleLine = true)
 
-            TextField(password,
-                onValueChange = {
-                    password = it
-                },
-                label = { Text("Password") },
-                singleLine = true,
-                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val icon = if (showPassword) {
-                        Icons.Rounded.Visibility
-                    } else {
-                        Icons.Rounded.VisibilityOff
+                TextField(password,
+                    onValueChange = {
+                        password = it
+                    },
+                    label = { Text("Password") },
+                    singleLine = true,
+                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        val icon = if (showPassword) {
+                            Icons.Rounded.Visibility
+                        } else {
+                            Icons.Rounded.VisibilityOff
+                        }
+
+                        IconButton(onClick = { showPassword = !showPassword }) {
+                            Icon(
+                                icon,
+                                contentDescription = "Visibility"
+                            )
+                        }
+                    })
+
+                Button(
+                    onClick = {
+                        viewModel.login(camera.uid, username, password)
                     }
-
-                    IconButton(onClick = { showPassword = !showPassword }) {
-                        Icon(
-                            icon,
-                            contentDescription = "Visibility"
-                        )
-                    }
-                })
-
-            Button(
-                onClick = {
-                    viewModel.login(camera.uid, username, password)
+                ) {
+                    Text("login")
                 }
-            ) {
-                Text("login")
             }
         }
     }

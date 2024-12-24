@@ -5,7 +5,7 @@ import com.ivyiot.ipclibrary.model.IvyCamera
 import java.util.Observer
 
 class IvyCameraConnectionImpl(
-    private val ivyCamera: IvyCamera
+    val ivyCamera: IvyCamera
 ) : IvyCameraConnection {
     override val uid: String = ivyCamera.uid
 
