@@ -38,8 +38,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainPage(
-    viewModel: MainViewModel = koinViewModel(),
-    navController: NavController
+    navController: NavController,
+    viewModel: MainViewModel = koinViewModel()
 ) {
     val localDevices by viewModel.localDevices.collectAsStateWithLifecycle(emptyList(), minActiveState = Lifecycle.State.RESUMED)
 

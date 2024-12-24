@@ -41,7 +41,7 @@ fun IvyCameraControlApp() {
                         modifier = Modifier.fillMaxSize()
                     ) {
                         composable<MainPageRoute> {
-                            MainPage(navController = navController)
+                            MainPage(navController)
                         }
 
                         composable<CameraDetailRoute> { backStackEntry ->
