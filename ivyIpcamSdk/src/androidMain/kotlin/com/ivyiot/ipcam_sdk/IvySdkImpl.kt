@@ -52,30 +52,8 @@ class IvySdkImpl : IvySdk {
 
     override suspend fun login(uid: String, username: String, password: String): IvyCameraConnection {
         val ivyCamera = IvyCamera(uid, username, password)
-        suspendCoroutine { continuation ->
-            ivyCamera.loginDevice(object : ISdkCallback<Nothing?> {
-                override fun onSuccess(nothing: Nothing?) {
-                    continuation.resume(Unit)
-                }
-
-                override fun onError(errorCode: Int) = handleError(errorCode)
-
-                override fun onLoginError(errorCode: Int) = handleError(errorCode)
-
-                private fun handleError(errorCode: Int) {
-                    continuation.resumeWithException(
-                        when (errorCode) {
-                            Result.USR_OR_PWD_ERR -> InvalidCredentialsException()
-                            Result.DENY -> AccessDeniedException()
-                            Result.MAX_USER -> UserLimitReachedException()
-                            Result.CANCEL_BY_USER -> CancellationException()
-                            Result.TIMEOUT, Result.OFFLINE -> DeviceOfflineOrUnreachableException()
-                            else -> RuntimeException()
-                        }
-                    )
-                }
-            })
-        }
-        return IvyCameraConnectionImpl(ivyCamera)
+        val connection = IvyCameraConnectionImpl(ivyCamera)
+        connection.login()
+        return connection
     }
 }

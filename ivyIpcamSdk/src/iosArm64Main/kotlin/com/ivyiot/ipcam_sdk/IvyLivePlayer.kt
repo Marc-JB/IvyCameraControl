@@ -12,9 +12,7 @@ import platform.UIKit.UIImageView
 
 @Composable
 actual fun IvyLivePlayer(ivyCameraConnection: IvyCameraConnection, modifier: Modifier) {
-    val iosIvyCameraConnection = remember {
-        ivyCameraConnection as IvyCameraConnectionImpl
-    }
+    val iosIvyCameraConnection = ivyCameraConnection as IvyCameraConnectionImpl
     var shouldOpen by remember { mutableStateOf(true) }
     UIKitView(
         factory = {

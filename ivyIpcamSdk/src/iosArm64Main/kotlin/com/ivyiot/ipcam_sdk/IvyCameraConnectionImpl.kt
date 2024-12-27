@@ -1,5 +1,16 @@
 package com.ivyiot.ipcam_sdk
 
+import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
+import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
+import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
+import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_MAX_USER
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OFFLINE
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OK
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_TIMEOUT
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_USR_OR_PWD_ERR
 import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_GET_WIFI_PARAM
 import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_SNAP_PICTURE
 import com.ivyiot.ipclibrary.sdk.IvyCamera
@@ -9,6 +20,7 @@ import com.ivyiot.ipclibrary.sdk.IvyVideoDecodeType
 import com.ivyiot.ipclibrary.sdk.addEventObserver
 import com.ivyiot.ipclibrary.sdk.destroyCamera
 import com.ivyiot.ipclibrary.sdk.deviceUID
+import com.ivyiot.ipclibrary.sdk.loginCamera
 import com.ivyiot.ipclibrary.sdk.logoutCamera
 import com.ivyiot.ipclibrary.sdk.removeEventObserver
 import com.ivyiot.ipclibrary.sdk.sendCommand
@@ -33,6 +45,10 @@ import platform.UIKit.UIImage
 import platform.darwin.NSObject
 import platform.darwin.sel_registerName
 import platform.posix.memcpy
+import kotlin.coroutines.cancellation.CancellationException
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 import kotlin.native.internal.reflect.objCNameOrNull
 import kotlin.time.Duration.Companion.seconds
 
@@ -71,6 +87,9 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     override val username = ivyCamera.username
 
+    private val mutableIsLoggedIn = MutableStateFlow(false)
+    override val isLoggedIn = mutableIsLoggedIn.asStateFlow()
+
     private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
     val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
@@ -94,6 +113,34 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     init {
         eventHandler.addObserver(ivyCamera)
+    }
+
+    override suspend fun login() {
+        suspendCoroutine { continuation ->
+            ivyCamera.loginCamera { state, result ->
+                if (result == IVYIO_RESULT_OK) {
+                    mutableIsLoggedIn.update { true }
+                    continuation.resume(Unit)
+                } else {
+                    mutableIsLoggedIn.update { false }
+                    continuation.resumeWithException(
+                        when (result) {
+                            IVYIO_RESULT_USR_OR_PWD_ERR -> InvalidCredentialsException()
+                            IVYIO_RESULT_DENY -> AccessDeniedException()
+                            IVYIO_RESULT_MAX_USER -> UserLimitReachedException()
+                            IVYIO_RESULT_CANCEL_BY_USER -> CancellationException()
+                            IVYIO_RESULT_TIMEOUT, IVYIO_RESULT_OFFLINE -> DeviceOfflineOrUnreachableException()
+                            else -> RuntimeException()
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    override suspend fun logout() {
+        mutableIsLoggedIn.update { false }
+        ivyCamera.logoutCamera()
     }
 
     override suspend fun sendTestCommand() {
@@ -124,6 +171,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     override fun close() {
         stopLiveStream()
         eventHandler.removeObserver(ivyCamera)
+        mutableIsLoggedIn.update { false }
         ivyCamera.logoutCamera()
         ivyCamera.destroyCamera()
     }

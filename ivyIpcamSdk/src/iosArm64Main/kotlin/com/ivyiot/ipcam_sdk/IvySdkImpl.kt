@@ -17,6 +17,7 @@ import com.ivyiot.ipclibrary.sdk.IvyCamera
 import com.ivyiot.ipclibrary.sdk.IvyDevLan
 import com.ivyiot.ipclibrary.sdk.IvySdkManager
 import com.ivyiot.ipclibrary.sdk.loginCamera
+import com.ivyiot.ipclibrary.sdk.logoutCamera
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -64,25 +65,9 @@ class IvySdkImpl : IvySdk {
 
     override suspend fun login(uid: String, username: String, password: String): IvyCameraConnection {
         val ivyCamera = IvyCamera(uid, username, password)
-        suspendCoroutine { continuation ->
-            ivyCamera.loginCamera { state, result ->
-                if (result == IVYIO_RESULT_OK) {
-                    continuation.resume(Unit)
-                } else {
-                    continuation.resumeWithException(
-                        when (result) {
-                            IVYIO_RESULT_USR_OR_PWD_ERR -> InvalidCredentialsException()
-                            IVYIO_RESULT_DENY -> AccessDeniedException()
-                            IVYIO_RESULT_MAX_USER -> UserLimitReachedException()
-                            IVYIO_RESULT_CANCEL_BY_USER -> CancellationException()
-                            IVYIO_RESULT_TIMEOUT, IVYIO_RESULT_OFFLINE -> DeviceOfflineOrUnreachableException()
-                            else -> RuntimeException()
-                        }
-                    )
-                }
-            }
-        }
-        return IvyCameraConnectionImpl(ivyCamera)
+        val connection = IvyCameraConnectionImpl(ivyCamera)
+        connection.login()
+        return connection
     }
 
     companion object {
