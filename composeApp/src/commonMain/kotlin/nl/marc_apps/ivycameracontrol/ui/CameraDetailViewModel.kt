@@ -29,4 +29,10 @@ class CameraDetailViewModel(private val ivySdk: IvySdk) : ViewModel() {
         mutableIsLoggedIn.update { false }
         ivyCameraConnection?.close()
     }
+
+    fun sendTestCommand() {
+        viewModelScope.launch {
+            ivyCameraConnection?.sendTestCommand()
+        }
+    }
 }

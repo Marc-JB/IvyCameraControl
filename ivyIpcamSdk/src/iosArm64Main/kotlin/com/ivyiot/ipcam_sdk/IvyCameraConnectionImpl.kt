@@ -1,5 +1,7 @@
 package com.ivyiot.ipcam_sdk
 
+import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_GET_WIFI_PARAM
+import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_SNAP_PICTURE
 import com.ivyiot.ipclibrary.sdk.IvyCamera
 import com.ivyiot.ipclibrary.sdk.IvyPlayer
 import com.ivyiot.ipclibrary.sdk.IvyPlayerDelegateProtocol
@@ -9,6 +11,7 @@ import com.ivyiot.ipclibrary.sdk.destroyCamera
 import com.ivyiot.ipclibrary.sdk.deviceUID
 import com.ivyiot.ipclibrary.sdk.logoutCamera
 import com.ivyiot.ipclibrary.sdk.removeEventObserver
+import com.ivyiot.ipclibrary.sdk.sendCommand
 import com.ivyiot.ipclibrary.sdk.username
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.ObjCObjectVar
@@ -21,23 +24,17 @@ import kotlinx.cinterop.value
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.serialization.json.internal.decodeToSequenceByReader
 import platform.Foundation.NSData
 import platform.Foundation.NSDictionary
 import platform.Foundation.NSError
 import platform.Foundation.NSJSONSerialization
-import platform.Foundation.NSMutableDictionary
 import platform.Foundation.NSNumber
-import platform.Foundation.NSString
-import platform.Foundation.NSUTF8StringEncoding
-import platform.Foundation.allKeys
-import platform.Foundation.dictionaryWithDictionary
-import platform.Foundation.initWithData
 import platform.UIKit.UIImage
-import platform.darwin.NSInteger
 import platform.darwin.NSObject
 import platform.darwin.sel_registerName
 import platform.posix.memcpy
+import kotlin.native.internal.reflect.objCNameOrNull
+import kotlin.time.Duration.Companion.seconds
 
 inline fun <T> createErrorPointer(block: (ObjCObjectVar<NSError?>) -> T): T = memScoped {
     block(alloc<ObjCObjectVar<NSError?>>())
@@ -97,6 +94,16 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     init {
         eventHandler.addObserver(ivyCamera)
+    }
+
+    override suspend fun sendTestCommand() {
+        ivyCamera.sendCommand(IVY_CTRL_MSG_GET_WIFI_PARAM.toInt(), emptyMap<Any?, Any?>(), 30.seconds.inWholeMilliseconds.toInt()) { obj, resultCode ->
+            if (obj != null) {
+                println("Test command result (${obj::class.simpleName}): $obj")
+            } else {
+                println("Test command result: $obj")
+            }
+        }
     }
 
     fun playLiveStream() {
