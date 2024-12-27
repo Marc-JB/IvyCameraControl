@@ -4,6 +4,8 @@ import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
 import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
+import com.ivyiot.ipcam_sdk.models.EventIds
+import com.ivyiot.ipcam_sdk.models.RecordingState
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_MAX_USER
@@ -11,6 +13,7 @@ import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OFFLINE
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OK
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_TIMEOUT
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_USR_OR_PWD_ERR
+import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_ALARM_CHG
 import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_GET_WIFI_PARAM
 import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_SNAP_PICTURE
 import com.ivyiot.ipclibrary.sdk.IvyCamera
@@ -36,6 +39,7 @@ import kotlinx.cinterop.value
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.serialization.json.Json
 import platform.Foundation.NSData
 import platform.Foundation.NSDictionary
 import platform.Foundation.NSError
@@ -90,6 +94,9 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     private val mutableIsLoggedIn = MutableStateFlow(false)
     override val isLoggedIn = mutableIsLoggedIn.asStateFlow()
 
+    private val mutableIsRecording = MutableStateFlow(false)
+    override val isRecording = mutableIsRecording.asStateFlow()
+
     private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
     val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
@@ -107,8 +114,15 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     }
 
     private val eventHandler = EventHandler {
-        val eventId = it.objectForKey("eventId") as? NSNumber
-        println("Received message: id = ${eventId?.unsignedIntValue}; data = ${it.toJsonString()}")
+        val eventId = (it.objectForKey("eventId") as? NSNumber)?.intValue
+        val message = it.toJsonString()
+        when (eventId) {
+            EventIds.RECORDING_STATE_CHANGED -> {
+                val recordingState = JsonSerializers.default.decodeFromString<RecordingState>(message)
+                mutableIsRecording.update { recordingState.isRecording }
+            }
+            else -> println("Received message: id = ${eventId}; data = $message")
+        }
     }
 
     init {

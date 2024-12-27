@@ -1,12 +1,15 @@
 package com.ivyiot.ipcam_sdk
 
 import android.os.Message
+import com.ivyio.sdk.Event
 import com.ivyio.sdk.IvyIoSdkJni
 import com.ivyio.sdk.Result
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
 import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
+import com.ivyiot.ipcam_sdk.models.EventIds
+import com.ivyiot.ipcam_sdk.models.RecordingState
 import com.ivyiot.ipclibrary.model.IvyCamera
 import com.ivyiot.ipclibrary.sdk.Cmd
 import com.ivyiot.ipclibrary.sdk.CmdHelper
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.serialization.json.Json
 import java.util.Observer
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
@@ -30,6 +34,9 @@ class IvyCameraConnectionImpl(
 
     private val mutableIsLoggedIn = MutableStateFlow(false)
     override val isLoggedIn = mutableIsLoggedIn.asStateFlow()
+
+    private val mutableIsRecording = MutableStateFlow(false)
+    override val isRecording = mutableIsRecording.asStateFlow()
 
     private val observer = Observer { _, argument ->
         if (argument is Message) {
@@ -81,7 +88,13 @@ class IvyCameraConnectionImpl(
     }
 
     private fun onEventReceived(message: Message) {
-        println("Received message: id = ${message.what}; data = ${message.obj}")
+        when (message.what) {
+            EventIds.RECORDING_STATE_CHANGED -> {
+                val recordingState = JsonSerializers.default.decodeFromString<RecordingState>(message.obj.toString())
+                mutableIsRecording.update { recordingState.isRecording }
+            }
+            else -> println("Received message: id = ${message.what}; data = ${message.obj}")
+        }
     }
 
     override fun close() {

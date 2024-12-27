@@ -8,6 +8,8 @@ interface IvyCameraConnectionState {
     val username: String
 
     val isLoggedIn: StateFlow<Boolean>
+
+    val isRecording: StateFlow<Boolean>
 }
 
 interface IvyCameraConnection : AutoCloseable, IvyCameraConnectionState {

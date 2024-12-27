@@ -1,6 +1,7 @@
 package nl.marc_apps.ivycameracontrol.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,11 +24,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastJoinToString
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ivyiot.ipcam_sdk.IvyLivePlayer
 import com.ivyiot.ipcam_sdk.LocalCamera
@@ -45,7 +49,8 @@ fun CameraDetailPage(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
-    val isLoggedIn by viewModel.isLoggedIn.collectAsState(false)
+    val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle(false)
+    val isRecording by viewModel.isRecording.collectAsStateWithLifecycle(false)
 
     Scaffold(
         topBar = {
@@ -75,6 +80,10 @@ fun CameraDetailPage(
                         .fillMaxWidth()
                         .heightIn(max = 400.dp)
                 )
+
+                if (isRecording) {
+                    Text("REC")
+                }
 
                 Button(
                     onClick = {
