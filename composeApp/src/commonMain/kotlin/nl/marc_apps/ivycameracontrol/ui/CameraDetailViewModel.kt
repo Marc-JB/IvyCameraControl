@@ -28,7 +28,7 @@ class CameraDetailViewModel(private val ivySdk: IvySdk) : ViewModel() {
             mutableIsLoggedIn.update { true }
 
             ivyCameraConnection!!.isRecording.collect {
-                mutableIsRecording.update { it }
+                mutableIsRecording.value = it
             }
         }
     }
