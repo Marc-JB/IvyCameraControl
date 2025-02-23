@@ -1,24 +1,13 @@
-import SwiftUI
+import UIKit
 import IvyCameraControl
 
 @main
-struct iOSApp: App {
-    init() {
+class AppDelegate : UIResponder, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         StartupKt.onAppStartup()
+        let window = UIWindow()
+        window.rootViewController = MainViewControllerKt.MainViewController()
+        window.makeKeyAndVisible()
+        return true
     }
-    
-	var body: some Scene {
-		WindowGroup {
-            ComposeView()
-                .ignoresSafeArea(.all)
-		}
-	}
-}
-
-struct ComposeView: UIViewControllerRepresentable {
-    func makeUIViewController(context: Context) -> UIViewController {
-        MainViewControllerKt.MainViewController()
-    }
-
-    func updateUIViewController(_ uiViewController: UIViewController, context: Context) {}
 }

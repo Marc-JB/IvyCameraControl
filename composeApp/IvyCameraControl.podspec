@@ -8,7 +8,7 @@ Pod::Spec.new do |spec|
     spec.summary                  = 'Some description for the Shared Module'
     spec.vendored_frameworks      = 'build/cocoapods/framework/IvyCameraControl.framework'
     spec.libraries                = 'c++'
-    spec.ios.deployment_target    = '15.3'
+    spec.ios.deployment_target    = '12.5'
                 
                 
     if !Dir.exist?('build/cocoapods/framework/IvyCameraControl.framework') || Dir.empty?('build/cocoapods/framework/IvyCameraControl.framework')

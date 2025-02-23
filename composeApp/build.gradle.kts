@@ -32,7 +32,7 @@ kotlin {
 
         name = "IvyCameraControl"
 
-        ios.deploymentTarget = "15.3"
+        ios.deploymentTarget = "12.5"
         podfile = project.file("../iosApp/Podfile")
 
         framework {
