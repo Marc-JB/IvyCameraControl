@@ -31,6 +31,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.zIndex
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ivyiot.ipcam_sdk.IvyLivePlayer
@@ -66,12 +67,6 @@ fun CameraDetailPage(
                 .padding(insets)
                 .padding(16.dp)
         ) {
-            Text(camera.uid)
-
-            Text(camera.macAddress.chunked(2).fastJoinToString(":"))
-
-            Text("${camera.ipAddress}:${camera.port}")
-
             if (isLoggedIn) {
                 IvyLivePlayer(
                     viewModel.ivyCameraConnection!!,
@@ -85,6 +80,12 @@ fun CameraDetailPage(
                     Text("REC")
                 }
 
+                Text(camera.uid)
+
+                Text(camera.macAddress.chunked(2).fastJoinToString(":"))
+
+                Text("${camera.ipAddress}:${camera.port}")
+
                 Button(
                     onClick = {
                         viewModel.sendTestCommand()
@@ -93,6 +94,12 @@ fun CameraDetailPage(
                     Text("Send test command")
                 }
             } else {
+                Text(camera.uid)
+
+                Text(camera.macAddress.chunked(2).fastJoinToString(":"))
+
+                Text("${camera.ipAddress}:${camera.port}")
+
                 TextField(username,
                     onValueChange = {
                         username = it
@@ -130,12 +137,6 @@ fun CameraDetailPage(
                     Text("login")
                 }
             }
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            viewModel.logout()
         }
     }
 }

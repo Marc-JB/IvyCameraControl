@@ -34,6 +34,7 @@ class CameraDetailViewModel(private val ivySdk: IvySdk) : ViewModel() {
     }
 
     fun logout() {
+        println("Logged out")
         mutableIsLoggedIn.update { false }
         ivyCameraConnection?.close()
     }
@@ -42,5 +43,11 @@ class CameraDetailViewModel(private val ivySdk: IvySdk) : ViewModel() {
         viewModelScope.launch {
             ivyCameraConnection?.sendTestCommand()
         }
+    }
+
+    override fun onCleared() {
+        logout()
+
+        super.onCleared()
     }
 }
