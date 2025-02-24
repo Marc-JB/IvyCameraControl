@@ -1,8 +1,6 @@
 package com.ivyiot.ipcam_sdk
 
 import android.os.Message
-import com.ivyio.sdk.Event
-import com.ivyio.sdk.IvyIoSdkJni
 import com.ivyio.sdk.Result
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
@@ -15,10 +13,9 @@ import com.ivyiot.ipclibrary.sdk.Cmd
 import com.ivyiot.ipclibrary.sdk.CmdHelper
 import com.ivyiot.ipclibrary.sdk.ISdkCallback
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.serialization.json.Json
+import java.util.Locale
 import java.util.Observer
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
@@ -85,6 +82,30 @@ class IvyCameraConnectionImpl(
     override suspend fun sendTestCommand() {
         val resp = CmdHelper.sendCmd(ivyCamera.handle, Cmd.IVY_CTRL_MSG_GET_WIFI_PARAM, null)
         println("Test command result: ${resp.json?.toString(4)}")
+    }
+
+    override fun setFlowSpeed(flowSpeed: Long) {
+        var speed = flowSpeed.toFloat()
+        var unit = "B"
+
+        if (speed >= 1024) {
+            speed /= 1024
+            unit = "KB"
+        }
+
+        if (speed >= 1024) {
+            speed /= 1024
+            unit = "MB"
+        }
+
+        if (speed >= 1024) {
+            speed /= 1024
+            unit = "GB"
+        }
+
+        val formattedSpeed = String.format(if (speed >= 100.0f || unit == "B") "%.0f" else "%.1f", speed) + " ${unit}/S"
+
+        println("Net flow speed: $formattedSpeed")
     }
 
     private fun onEventReceived(message: Message) {

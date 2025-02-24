@@ -18,4 +18,6 @@ interface IvyCameraConnection : AutoCloseable, IvyCameraConnectionState {
     suspend fun logout()
 
     suspend fun sendTestCommand()
+
+    fun setFlowSpeed(flowSpeed: Long)
 }

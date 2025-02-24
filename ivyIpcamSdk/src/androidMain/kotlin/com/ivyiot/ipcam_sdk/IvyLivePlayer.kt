@@ -6,11 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ivyiot.ipclibrary.video.IVideoListener
 import com.ivyiot.ipclibrary.video.VideoSurfaceView
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 actual fun IvyLivePlayer(
@@ -18,10 +24,18 @@ actual fun IvyLivePlayer(
     modifier: Modifier
 ) {
     var shouldOpen by remember { mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
     AndroidView(
         factory = { context ->
             VideoSurfaceView(context).also {
                 it.clipToOutline = true
+
+                coroutineScope.launch {
+                    while(true) {
+                        delay(1.seconds)
+                        ivyCameraConnection.setFlowSpeed(it.currFlowValue)
+                    }
+                }
             }
         },
         modifier = modifier,
@@ -55,7 +69,6 @@ actual fun IvyLivePlayer(
                     }
 
                     override fun netFlowSpeedRefresh(p0: String?) {
-                        println("New flow speed: $p0")
                     }
 
                 })

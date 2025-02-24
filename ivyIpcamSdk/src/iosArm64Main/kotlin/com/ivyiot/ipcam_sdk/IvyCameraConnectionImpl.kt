@@ -102,11 +102,8 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     private var isLiveStreamActive = false
 
-    var onImageAvailable: ((UIImage) -> Unit)? = null
-
     private val ivyPlayerDelegate = IvyPlayerDelegateImpl {
-        mutableLiveStreamImageFlow.update { it }
-        onImageAvailable?.invoke(it)
+        mutableLiveStreamImageFlow.value = it
     }
 
     private val ivyPlayer = IvyPlayer().also {
@@ -165,6 +162,10 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
                 println("Test command result: $obj")
             }
         }
+    }
+
+    override fun setFlowSpeed(flowSpeed: Long) {
+        TODO("Not yet implemented")
     }
 
     fun playLiveStream() {

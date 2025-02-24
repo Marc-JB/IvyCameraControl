@@ -1,12 +1,17 @@
 package nl.marc_apps.ivycameracontrol.ui
 
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
@@ -52,6 +57,7 @@ fun CameraDetailPage(
     var showPassword by remember { mutableStateOf(false) }
     val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle(false)
     val isRecording by viewModel.isRecording.collectAsStateWithLifecycle(false)
+    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
@@ -62,7 +68,10 @@ fun CameraDetailPage(
         }
     ) { insets ->
         Column (
-            modifier = Modifier.padding(insets)
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .padding(insets)
+                .fillMaxSize()
         ) {
             if (isLoggedIn) {
                 IvyLivePlayer(
@@ -79,6 +88,10 @@ fun CameraDetailPage(
                 modifier = Modifier
                     .padding(16.dp)
             ) {
+                if (isLoggedIn && isRecording) {
+                    Text("REC")
+                }
+
                 Text(camera.uid)
 
                 Text(camera.macAddress.chunked(2).fastJoinToString(":"))
@@ -86,10 +99,6 @@ fun CameraDetailPage(
                 Text("${camera.ipAddress}:${camera.port}")
 
                 if (isLoggedIn) {
-                    if (isRecording) {
-                        Text("REC")
-                    }
-
                     Button(
                         onClick = {
                             viewModel.sendTestCommand()
