@@ -164,7 +164,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         }
     }
 
-    override fun setFlowSpeed(flowSpeed: Long) {
+    override fun setFlowSpeed(flowSpeed: Int) {
         TODO("Not yet implemented")
     }
 
@@ -177,7 +177,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     fun stopLiveStream() {
         if (isLiveStreamActive) {
-            mutableLiveStreamImageFlow.update { null }
+            mutableLiveStreamImageFlow.value = null
             isLiveStreamActive = false
             ivyPlayer.stop()
         }

@@ -1,7 +1,6 @@
 package com.ivyiot.ipcam_sdk
 
 import android.graphics.Bitmap
-import android.graphics.Color
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,9 +12,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import com.ivyiot.ipclibrary.video.IVideoListener
 import com.ivyiot.ipclibrary.video.VideoSurfaceView
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -23,7 +20,7 @@ actual fun IvyLivePlayer(
     ivyCameraConnection: IvyCameraConnection,
     modifier: Modifier
 ) {
-    var shouldOpen by remember { mutableStateOf(true) }
+    var isInitialised by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     AndroidView(
         factory = { context ->
@@ -40,9 +37,9 @@ actual fun IvyLivePlayer(
         },
         modifier = modifier,
         update = {
-            if (shouldOpen) {
-                println("About to open live camera view")
-                shouldOpen = false
+            if (!isInitialised) {
+                isInitialised = true
+
                 it.openVideo((ivyCameraConnection as IvyCameraConnectionImpl).ivyCamera, object : IVideoListener {
                     override fun snapFinished(p0: ByteArray?) {
                         TODO("Not yet implemented")
@@ -57,7 +54,7 @@ actual fun IvyLivePlayer(
                     }
 
                     override fun openVideoFail(p0: Int) {
-                        println("Video open error: ${p0}")
+                        println("Video open error: $p0")
                     }
 
                     override fun closeVideoSucc() {
