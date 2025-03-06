@@ -1,6 +1,7 @@
 package nl.marc_apps.ivycameracontrol.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
@@ -29,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -40,6 +42,7 @@ import com.ivyiot.ipcam_sdk.LocalCamera
 import nl.marc_apps.ivycameracontrol.ui.components.NavigateUpButton
 import nl.marc_apps.ivycameracontrol.ui.components.PlatformAlignedTopAppBar
 import nl.marc_apps.ivycameracontrol.ui.components.RecordingIndicator
+import nl.marc_apps.ivycameracontrol.ui.components.ZoomableBox
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,13 +76,25 @@ fun CameraDetailPage(
             if (isLoggedIn) {
                 Surface(tonalElevation = 1.dp) {
                     Column {
-                        IvyLivePlayer(
-                            viewModel.ivyCameraConnection!!,
+                        ZoomableBox(
+                            minScale = 1f,
+                            maxScale = 3f,
                             modifier = Modifier
                                 .aspectRatio(16f / 9f)
                                 .fillMaxWidth()
                                 .heightIn(max = 400.dp)
-                        )
+                        ) {
+                            IvyLivePlayer(
+                                viewModel.ivyCameraConnection!!,
+                                Modifier
+                                    .graphicsLayer(
+                                        scaleX = scale,
+                                        scaleY = scale,
+                                        translationX = offsetX,
+                                        translationY = offsetY
+                                    )
+                            )
+                        }
 
                         Row (
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
