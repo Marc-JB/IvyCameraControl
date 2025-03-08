@@ -5,8 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.cinterop.useContents
@@ -19,6 +21,7 @@ import platform.CoreGraphics.CGAffineTransformTranslate
 import platform.UIKit.UIImageView
 import platform.UIKit.UIViewContentMode
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun IvyLivePlayer(
     ivyCameraConnection: IvyCameraConnection,
@@ -49,6 +52,7 @@ actual fun IvyLivePlayer(
         },
         onRelease = {
             iosIvyCameraConnection.stopLiveStream()
-        }
+        },
+        properties = UIKitInteropProperties(interactionMode = null)
     )
 }
