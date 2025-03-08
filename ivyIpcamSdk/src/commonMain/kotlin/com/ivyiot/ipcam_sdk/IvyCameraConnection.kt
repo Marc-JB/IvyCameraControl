@@ -13,6 +13,8 @@ interface IvyCameraConnectionState : IvyCameraConnectionNativeState {
     val isLoggedIn: StateFlow<Boolean>
 
     val isRecording: StateFlow<Boolean>
+
+    val flowSpeed: StateFlow<BytesPerSecond?>
 }
 
 expect interface IvyCameraConnectionNativeMethods
@@ -24,5 +26,5 @@ interface IvyCameraConnection : AutoCloseable, IvyCameraConnectionState, IvyCame
 
     suspend fun sendTestCommand()
 
-    fun setFlowSpeed(flowSpeed: BytesPerSecond)
+    fun setFlowSpeed(flowSpeed: BytesPerSecond?)
 }

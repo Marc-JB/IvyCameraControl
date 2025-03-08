@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ivyiot.ipcam_sdk.IvyCameraConnection
 import com.ivyiot.ipcam_sdk.IvySdk
+import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
@@ -22,13 +23,24 @@ class CameraDetailViewModel(private val ivySdk: IvySdk) : ViewModel() {
     private val mutableIsRecording = MutableStateFlow(false)
     val isRecording = mutableIsRecording.asStateFlow()
 
+    private val mutableNewFlowSpeed = MutableStateFlow<BytesPerSecond?>(null)
+    val newFlowSpeed = mutableNewFlowSpeed.asStateFlow()
+
     fun login(uid: String, username: String, password: String) {
         viewModelScope.launch {
             ivyCameraConnection = ivySdk.login(uid, username, password)
             mutableIsLoggedIn.update { true }
 
-            ivyCameraConnection!!.isRecording.collect {
-                mutableIsRecording.value = it
+            launch {
+                ivyCameraConnection!!.isRecording.collect {
+                    mutableIsRecording.value = it
+                }
+            }
+
+            launch {
+                ivyCameraConnection!!.flowSpeed.collect {
+                    mutableNewFlowSpeed.value = it
+                }
             }
         }
     }

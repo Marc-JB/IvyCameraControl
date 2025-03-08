@@ -6,6 +6,7 @@ import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
 import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
 import com.ivyiot.ipcam_sdk.models.EventIds
 import com.ivyiot.ipcam_sdk.models.RecordingState
+import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_MAX_USER
@@ -100,6 +101,9 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
     override val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
+    private val mutableFlowSpeed = MutableStateFlow<BytesPerSecond?>(null)
+    override val flowSpeed = mutableFlowSpeed.asStateFlow()
+
     private var isLiveStreamActive = false
 
     private val ivyPlayerDelegate = IvyPlayerDelegateImpl {
@@ -164,8 +168,8 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         }
     }
 
-    override fun setFlowSpeed(flowSpeed: Int) {
-        TODO("Not yet implemented")
+    override fun setFlowSpeed(flowSpeed: BytesPerSecond?) {
+        mutableFlowSpeed.value = flowSpeed
     }
 
     override fun playLiveStream() {

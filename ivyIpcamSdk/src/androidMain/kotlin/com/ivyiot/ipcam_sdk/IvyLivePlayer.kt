@@ -31,9 +31,13 @@ actual fun IvyLivePlayer(
                 it.clipToOutline = true
 
                 coroutineScope.launch {
-                    while(true) {
-                        delay(1.seconds)
-                        ivyCameraConnection.setFlowSpeed(BytesPerSecond(it.currFlowValue))
+                    try {
+                        while(true) {
+                            delay(1.seconds)
+                            ivyCameraConnection.setFlowSpeed(BytesPerSecond(it.currFlowValue))
+                        }
+                    } finally {
+                        ivyCameraConnection.setFlowSpeed(null)
                     }
                 }
             }

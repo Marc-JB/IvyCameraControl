@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -57,6 +58,7 @@ fun CameraDetailPage(
     var showPassword by remember { mutableStateOf(false) }
     val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle(false)
     val isRecording by viewModel.isRecording.collectAsStateWithLifecycle(false)
+    val netFlowSpeed by viewModel.newFlowSpeed.collectAsStateWithLifecycle(null)
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -98,6 +100,12 @@ fun CameraDetailPage(
                             modifier = Modifier.padding(16.dp)
                         ) {
                             RecordingIndicator(isRecording)
+
+                            netFlowSpeed?.let {
+                                Spacer(Modifier.weight(1f))
+
+                                Text(it.getFormattedValue())
+                            }
                         }
                     }
                 }

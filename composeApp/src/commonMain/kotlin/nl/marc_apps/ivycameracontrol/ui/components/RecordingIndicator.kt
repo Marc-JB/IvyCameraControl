@@ -15,10 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun RecordingIndicator(isRecording: Boolean) {
+fun RecordingIndicator(isRecording: Boolean, modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
     ) {
         Box (
             modifier = Modifier

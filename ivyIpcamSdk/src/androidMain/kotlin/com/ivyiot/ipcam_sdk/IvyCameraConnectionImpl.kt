@@ -39,7 +39,8 @@ class IvyCameraConnectionImpl(
     private val mutableIsRecording = MutableStateFlow(false)
     override val isRecording = mutableIsRecording.asStateFlow()
 
-    private var flowSpeedUpdateCounter = 0
+    private val mutableFlowSpeed = MutableStateFlow<BytesPerSecond?>(null)
+    override val flowSpeed = mutableFlowSpeed.asStateFlow()
 
     private val observer = Observer { _, argument ->
         if (argument is Message) {
@@ -92,13 +93,8 @@ class IvyCameraConnectionImpl(
         println("Test command result: ${resp.json?.toString(4)}")
     }
 
-    override fun setFlowSpeed(flowSpeed: BytesPerSecond) {
-        flowSpeedUpdateCounter++
-
-        if (flowSpeedUpdateCounter >= 10) {
-            println("Net flow speed: ${flowSpeed.getFormattedValue()}")
-            flowSpeedUpdateCounter = 0
-        }
+    override fun setFlowSpeed(flowSpeed: BytesPerSecond?) {
+        mutableFlowSpeed.value = flowSpeed
     }
 
     private fun onEventReceived(message: Message) {
