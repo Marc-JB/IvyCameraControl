@@ -1,8 +1,11 @@
 package com.ivyiot.ipcam_sdk
 
+import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
 import kotlinx.coroutines.flow.StateFlow
 
-interface IvyCameraConnectionState {
+expect interface IvyCameraConnectionNativeState
+
+interface IvyCameraConnectionState : IvyCameraConnectionNativeState {
     val uid: String
 
     val username: String
@@ -12,12 +15,14 @@ interface IvyCameraConnectionState {
     val isRecording: StateFlow<Boolean>
 }
 
-interface IvyCameraConnection : AutoCloseable, IvyCameraConnectionState {
+expect interface IvyCameraConnectionNativeMethods
+
+interface IvyCameraConnection : AutoCloseable, IvyCameraConnectionState, IvyCameraConnectionNativeMethods {
     suspend fun login()
 
     suspend fun logout()
 
     suspend fun sendTestCommand()
 
-    fun setFlowSpeed(flowSpeed: Int)
+    fun setFlowSpeed(flowSpeed: BytesPerSecond)
 }

@@ -98,7 +98,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     override val isRecording = mutableIsRecording.asStateFlow()
 
     private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
-    val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
+    override val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
     private var isLiveStreamActive = false
 
@@ -168,14 +168,14 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         TODO("Not yet implemented")
     }
 
-    fun playLiveStream() {
+    override fun playLiveStream() {
         if (!isLiveStreamActive) {
             ivyPlayer.playLive(ivyCamera, IvyVideoDecodeType.IvyVideoDecodeUIImage)
             isLiveStreamActive = true
         }
     }
 
-    fun stopLiveStream() {
+    override fun stopLiveStream() {
         if (isLiveStreamActive) {
             mutableLiveStreamImageFlow.value = null
             isLiveStreamActive = false

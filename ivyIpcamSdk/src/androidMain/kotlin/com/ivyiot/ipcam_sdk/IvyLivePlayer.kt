@@ -1,6 +1,5 @@
 package com.ivyiot.ipcam_sdk
 
-import android.graphics.Bitmap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ivyiot.ipclibrary.video.IVideoListener
+import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
 import com.ivyiot.ipclibrary.video.VideoSurfaceView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,7 +33,7 @@ actual fun IvyLivePlayer(
                 coroutineScope.launch {
                     while(true) {
                         delay(1.seconds)
-                        ivyCameraConnection.setFlowSpeed(it.currFlowValue)
+                        ivyCameraConnection.setFlowSpeed(BytesPerSecond(it.currFlowValue))
                     }
                 }
             }
@@ -50,35 +49,7 @@ actual fun IvyLivePlayer(
             if (!isInitialised) {
                 isInitialised = true
 
-                it.openVideo((ivyCameraConnection as IvyCameraConnectionImpl).ivyCamera, object : IVideoListener {
-                    override fun snapFinished(p0: ByteArray?) {
-                        TODO("Not yet implemented")
-                    }
-
-                    override fun firstFrameDone(p0: Bitmap?) {
-                        println("First frame done")
-                    }
-
-                    override fun openVideoSucc() {
-                        println("Video open success")
-                    }
-
-                    override fun openVideoFail(p0: Int) {
-                        println("Video open error: $p0")
-                    }
-
-                    override fun closeVideoSucc() {
-                        println("Close video success")
-                    }
-
-                    override fun closeVideoFail(p0: Int) {
-                        println("Close video failure")
-                    }
-
-                    override fun netFlowSpeedRefresh(p0: String?) {
-                    }
-
-                })
+                it.openVideo(ivyCameraConnection.ivyCamera, ivyCameraConnection.videoListener)
             }
         },
         onRelease = {

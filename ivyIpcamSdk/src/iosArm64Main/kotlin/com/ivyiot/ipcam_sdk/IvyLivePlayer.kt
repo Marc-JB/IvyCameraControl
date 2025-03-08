@@ -29,7 +29,6 @@ actual fun IvyLivePlayer(
     offset: Offset,
     modifier: Modifier
 ) {
-    val iosIvyCameraConnection = ivyCameraConnection as IvyCameraConnectionImpl
     var isInitialised by remember { mutableStateOf(false) }
     val image by ivyCameraConnection.liveStreamImageFlow.collectAsStateWithLifecycle(null)
     val transformation = remember(scale, offset) {
@@ -44,14 +43,14 @@ actual fun IvyLivePlayer(
         update = {
             if (!isInitialised) {
                 isInitialised = true
-                iosIvyCameraConnection.playLiveStream()
+                ivyCameraConnection.playLiveStream()
             }
 
             it.image = image
             it.transform = transformation
         },
         onRelease = {
-            iosIvyCameraConnection.stopLiveStream()
+            ivyCameraConnection.stopLiveStream()
         },
         properties = UIKitInteropProperties(interactionMode = null)
     )

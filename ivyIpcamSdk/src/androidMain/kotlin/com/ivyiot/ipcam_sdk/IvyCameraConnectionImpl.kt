@@ -1,5 +1,6 @@
 package com.ivyiot.ipcam_sdk
 
+import android.graphics.Bitmap
 import android.os.Message
 import com.ivyio.sdk.Result
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
@@ -8,12 +9,15 @@ import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
 import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
 import com.ivyiot.ipcam_sdk.models.EventIds
 import com.ivyiot.ipcam_sdk.models.RecordingState
+import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
 import com.ivyiot.ipclibrary.model.IvyCamera
 import com.ivyiot.ipclibrary.sdk.Cmd
 import com.ivyiot.ipclibrary.sdk.CmdHelper
 import com.ivyiot.ipclibrary.sdk.ISdkCallback
+import com.ivyiot.ipclibrary.video.IVideoListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import java.util.Locale
 import java.util.Observer
@@ -23,7 +27,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
 
 class IvyCameraConnectionImpl(
-    val ivyCamera: IvyCamera
+    override val ivyCamera: IvyCamera
 ) : IvyCameraConnection {
     override val uid: String = ivyCamera.uid
 
@@ -42,6 +46,8 @@ class IvyCameraConnectionImpl(
             onEventReceived(argument)
         }
     }
+
+    override val videoListener = VideoListener()
 
     init {
         ivyCamera.addObserver(observer)
@@ -86,31 +92,11 @@ class IvyCameraConnectionImpl(
         println("Test command result: ${resp.json?.toString(4)}")
     }
 
-    override fun setFlowSpeed(flowSpeed: Int) {
-        var speed = flowSpeed.toFloat()
-        var unit = "B"
-
-        if (speed >= 1024) {
-            speed /= 1024
-            unit = "KB"
-        }
-
-        if (speed >= 1024) {
-            speed /= 1024
-            unit = "MB"
-        }
-
-        if (speed >= 1024) {
-            speed /= 1024
-            unit = "GB"
-        }
-
-        val formattedSpeed = String.format(if (speed >= 100.0f || unit == "B") "%.0f" else "%.1f", speed) + " ${unit}/S"
-
+    override fun setFlowSpeed(flowSpeed: BytesPerSecond) {
         flowSpeedUpdateCounter++
 
         if (flowSpeedUpdateCounter >= 10) {
-            println("Net flow speed: $formattedSpeed")
+            println("Net flow speed: ${flowSpeed.getFormattedValue()}")
             flowSpeedUpdateCounter = 0
         }
     }
@@ -130,5 +116,34 @@ class IvyCameraConnectionImpl(
         mutableIsLoggedIn.update { false }
         ivyCamera.logout()
         ivyCamera.destroy()
+    }
+}
+
+class VideoListener : IVideoListener {
+    override fun snapFinished(p0: ByteArray?) {
+        TODO("Not yet implemented")
+    }
+
+    override fun firstFrameDone(p0: Bitmap?) {
+        println("First frame done")
+    }
+
+    override fun openVideoSucc() {
+        println("Video open success")
+    }
+
+    override fun openVideoFail(p0: Int) {
+        println("Video open error: $p0")
+    }
+
+    override fun closeVideoSucc() {
+        println("Close video success")
+    }
+
+    override fun closeVideoFail(p0: Int) {
+        println("Close video failure")
+    }
+
+    override fun netFlowSpeedRefresh(p0: String?) {
     }
 }
