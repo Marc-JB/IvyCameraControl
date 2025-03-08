@@ -6,15 +6,33 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.viewinterop.UIKitView
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.cinterop.useContents
+import platform.CoreGraphics.CGAffineTransform
+import platform.CoreGraphics.CGAffineTransformIdentity
+import platform.CoreGraphics.CGAffineTransformMakeScale
+import platform.CoreGraphics.CGAffineTransformMakeTranslation
+import platform.CoreGraphics.CGAffineTransformScale
+import platform.CoreGraphics.CGAffineTransformTranslate
 import platform.UIKit.UIImageView
+import platform.UIKit.UIViewContentMode
 
 @Composable
-actual fun IvyLivePlayer(ivyCameraConnection: IvyCameraConnection, modifier: Modifier) {
+actual fun IvyLivePlayer(
+    ivyCameraConnection: IvyCameraConnection,
+    scale: Float,
+    offset: Offset,
+    modifier: Modifier
+) {
     val iosIvyCameraConnection = ivyCameraConnection as IvyCameraConnectionImpl
     var isInitialised by remember { mutableStateOf(false) }
     val image by ivyCameraConnection.liveStreamImageFlow.collectAsStateWithLifecycle(null)
+    val transformation = remember(scale, offset) {
+        CGAffineTransformScale(CGAffineTransformMakeTranslation(offset.x / 2.0, offset.y / 2.0), scale.toDouble(), scale.toDouble())
+    }
+
     UIKitView(
         factory = {
             UIImageView()
@@ -27,6 +45,7 @@ actual fun IvyLivePlayer(ivyCameraConnection: IvyCameraConnection, modifier: Mod
             }
 
             it.image = image
+            it.transform = transformation
         },
         onRelease = {
             iosIvyCameraConnection.stopLiveStream()

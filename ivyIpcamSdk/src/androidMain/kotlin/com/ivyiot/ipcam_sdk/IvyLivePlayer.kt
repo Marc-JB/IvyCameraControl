@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ivyiot.ipclibrary.video.IVideoListener
 import com.ivyiot.ipclibrary.video.VideoSurfaceView
@@ -18,6 +20,8 @@ import kotlin.time.Duration.Companion.seconds
 @Composable
 actual fun IvyLivePlayer(
     ivyCameraConnection: IvyCameraConnection,
+    scale: Float,
+    offset: Offset,
     modifier: Modifier
 ) {
     var isInitialised by remember { mutableStateOf(false) }
@@ -35,7 +39,13 @@ actual fun IvyLivePlayer(
                 }
             }
         },
-        modifier = modifier,
+        modifier = modifier
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale,
+                translationX = offset.x,
+                translationY = offset.y
+            ),
         update = {
             if (!isInitialised) {
                 isInitialised = true

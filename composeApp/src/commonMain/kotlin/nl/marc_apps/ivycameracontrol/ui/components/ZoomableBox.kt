@@ -24,8 +24,7 @@ fun ZoomableBox(
     content: @Composable ZoomableBoxScope.() -> Unit
 ) {
     var scale by remember { mutableStateOf(1f) }
-    var offsetX by remember { mutableStateOf(0f) }
-    var offsetY by remember { mutableStateOf(0f) }
+    var offset by remember { mutableStateOf(Offset.Zero) }
     var size by remember { mutableStateOf(IntSize.Zero) }
     Box(
         modifier = modifier
@@ -36,10 +35,12 @@ fun ZoomableBox(
                     scale = maxOf(minScale, minOf(scale * zoom, maxScale))
                     val maxX = (size.width * (scale - 1)) / 2
                     val minX = -maxX
-                    offsetX = maxOf(minX, minOf(maxX, offsetX + pan.x))
                     val maxY = (size.height * (scale - 1)) / 2
                     val minY = -maxY
-                    offsetY = maxOf(minY, minOf(maxY, offsetY + pan.y))
+                    offset = Offset(
+                        x = maxOf(minX, minOf(maxX, offset.x + pan.x)),
+                        y = maxOf(minY, minOf(maxY, offset.y + pan.y))
+                    )
                 }
             }
             .pointerInput(Unit) {
@@ -47,33 +48,28 @@ fun ZoomableBox(
                     onDoubleTap = { tapOffset ->
                         if (scale > 1.1f) {
                             scale = 1f
-                            offsetX = 0f
-                            offsetY = 0f
+                            offset = Offset.Zero
                         } else {
                             scale = 2f
-                            val offset = calculateOffset(tapOffset, size)
-                            offsetX = offset.x
-                            offsetY = offset.y
+                            offset = calculateOffset(tapOffset, size)
                         }
                     }
                 )
             }
     ) {
-        val scope = ZoomableBoxScopeImpl(scale, offsetX, offsetY)
+        val scope = ZoomableBoxScopeImpl(scale, offset)
         scope.content()
     }
 }
 
 interface ZoomableBoxScope {
     val scale: Float
-    val offsetX: Float
-    val offsetY: Float
+    val offset: Offset
 }
 
 private data class ZoomableBoxScopeImpl(
     override val scale: Float,
-    override val offsetX: Float,
-    override val offsetY: Float
+    override val offset: Offset,
 ) : ZoomableBoxScope
 
 private fun calculateOffset(tapOffset: Offset, size: IntSize): Offset {

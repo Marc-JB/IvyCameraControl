@@ -86,14 +86,9 @@ fun CameraDetailPage(
                         ) {
                             IvyLivePlayer(
                                 viewModel.ivyCameraConnection!!,
-                                Modifier
-                                    .fillMaxSize()
-                                    .graphicsLayer(
-                                        scaleX = scale,
-                                        scaleY = scale,
-                                        translationX = offsetX,
-                                        translationY = offsetY
-                                    )
+                                scale,
+                                offset,
+                                Modifier.fillMaxSize()
                             )
                         }
 
