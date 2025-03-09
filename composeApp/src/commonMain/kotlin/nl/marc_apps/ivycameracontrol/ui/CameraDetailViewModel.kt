@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.ivyiot.ipcam_sdk.IvyCameraConnection
 import com.ivyiot.ipcam_sdk.IvySdk
 import com.ivyiot.ipcam_sdk.LiveStreamState
-import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.android.annotation.KoinViewModel

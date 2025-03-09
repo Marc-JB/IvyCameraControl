@@ -1,13 +1,12 @@
 package com.ivyiot.ipcam_sdk
 
-import androidx.compose.ui.uikit.utils.CMPOSLogger
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
 import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
 import com.ivyiot.ipcam_sdk.models.EventIds
 import com.ivyiot.ipcam_sdk.models.RecordingState
-import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
+import com.ivyiot.ipcam_sdk.models.Bitrate
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_MAX_USER
@@ -15,9 +14,7 @@ import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OFFLINE
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OK
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_TIMEOUT
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_USR_OR_PWD_ERR
-import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_ALARM_CHG
 import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_GET_WIFI_PARAM
-import com.ivyiot.ipclibrary.sdk.IVY_CTRL_MSG_SNAP_PICTURE
 import com.ivyiot.ipclibrary.sdk.IvyCamera
 import com.ivyiot.ipclibrary.sdk.IvyPlayer
 import com.ivyiot.ipclibrary.sdk.IvyPlayerDelegateProtocol
@@ -41,7 +38,6 @@ import kotlinx.cinterop.value
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.serialization.json.Json
 import platform.Foundation.NSData
 import platform.Foundation.NSDictionary
 import platform.Foundation.NSError
@@ -56,7 +52,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
-import kotlin.native.internal.reflect.objCNameOrNull
 import kotlin.time.Duration.Companion.seconds
 
 inline fun <T> createErrorPointer(block: (ObjCObjectVar<NSError?>) -> T): T = memScoped {
@@ -117,7 +112,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         mutableLiveStreamImageFlow.value = frame
     }
 
-    private fun onSetFlowSpeed(flowSpeed: BytesPerSecond?) {
+    private fun onSetFlowSpeed(flowSpeed: Bitrate?) {
         setFlowSpeed(flowSpeed)
     }
 
@@ -180,7 +175,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         }
     }
 
-    override fun setFlowSpeed(flowSpeed: BytesPerSecond?) {
+    override fun setFlowSpeed(flowSpeed: Bitrate?) {
         mutableLiveStreamState.update {
             it.copy(flowSpeed = flowSpeed)
         }
@@ -215,14 +210,14 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
 class IvyPlayerDelegateImpl(
     private val frameReceived: (UIImage) -> Unit,
-    private val setFlowSpeed: (BytesPerSecond) -> Unit
+    private val setFlowSpeed: (Bitrate) -> Unit
 ) : NSObject(), IvyPlayerDelegateProtocol {
     override fun ivyPlayer(ivyPlayer: IvyPlayer, didReciveFrame: UIImage, isFirstFrame: Boolean) {
         frameReceived(didReciveFrame)
     }
 
     override fun ivyPlayer(ivyPlayer: IvyPlayer, mediaTransmitSpeed: NSUInteger) {
-        setFlowSpeed(BytesPerSecond(mediaTransmitSpeed.toUInt()))
+        setFlowSpeed(Bitrate(mediaTransmitSpeed.toUInt()))
     }
 }
 

@@ -1,6 +1,6 @@
 package com.ivyiot.ipcam_sdk
 
-import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
+import com.ivyiot.ipcam_sdk.models.Bitrate
 import kotlinx.coroutines.flow.StateFlow
 
 expect interface IvyCameraConnectionNativeState
@@ -19,7 +19,7 @@ interface IvyCameraConnectionState : IvyCameraConnectionNativeState {
 
 data class LiveStreamState(
     val isLoading: Boolean = true,
-    val flowSpeed: BytesPerSecond? = null
+    val flowSpeed: Bitrate? = null
 )
 
 expect interface IvyCameraConnectionNativeMethods
@@ -31,5 +31,5 @@ interface IvyCameraConnection : AutoCloseable, IvyCameraConnectionState, IvyCame
 
     suspend fun sendTestCommand()
 
-    fun setFlowSpeed(flowSpeed: BytesPerSecond?)
+    fun setFlowSpeed(flowSpeed: Bitrate?)
 }

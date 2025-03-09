@@ -9,7 +9,7 @@ import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
 import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
 import com.ivyiot.ipcam_sdk.models.EventIds
 import com.ivyiot.ipcam_sdk.models.RecordingState
-import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
+import com.ivyiot.ipcam_sdk.models.Bitrate
 import com.ivyiot.ipclibrary.model.IvyCamera
 import com.ivyiot.ipclibrary.sdk.Cmd
 import com.ivyiot.ipclibrary.sdk.CmdHelper
@@ -17,9 +17,7 @@ import com.ivyiot.ipclibrary.sdk.ISdkCallback
 import com.ivyiot.ipclibrary.video.IVideoListener
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
-import java.util.Locale
 import java.util.Observer
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
@@ -105,7 +103,7 @@ class IvyCameraConnectionImpl(
         println("Test command result: ${resp.json?.toString(4)}")
     }
 
-    override fun setFlowSpeed(flowSpeed: BytesPerSecond?) {
+    override fun setFlowSpeed(flowSpeed: Bitrate?) {
         mutableLiveStreamState.update {
             it.copy(flowSpeed = flowSpeed)
         }

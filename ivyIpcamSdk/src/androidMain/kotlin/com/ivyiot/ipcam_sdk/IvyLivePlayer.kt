@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.viewinterop.AndroidView
-import com.ivyiot.ipcam_sdk.utils.BytesPerSecond
+import com.ivyiot.ipcam_sdk.models.Bitrate
 import com.ivyiot.ipclibrary.video.VideoSurfaceView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,7 +34,7 @@ actual fun IvyLivePlayer(
                     try {
                         while(true) {
                             delay(1.seconds)
-                            ivyCameraConnection.setFlowSpeed(BytesPerSecond(it.currFlowValue.toUInt()))
+                            ivyCameraConnection.setFlowSpeed(Bitrate(it.currFlowValue.toUInt()))
                         }
                     } finally {
                         ivyCameraConnection.setFlowSpeed(null)
