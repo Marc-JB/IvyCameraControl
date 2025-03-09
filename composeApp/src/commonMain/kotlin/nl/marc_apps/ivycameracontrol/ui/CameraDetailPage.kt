@@ -44,11 +44,16 @@ import androidx.navigation.NavController
 import com.ivyiot.ipcam_sdk.IvyLivePlayer
 import com.ivyiot.ipcam_sdk.LiveStreamState
 import com.ivyiot.ipcam_sdk.LocalCamera
+import nl.marc_apps.ivycameracontrol.resources.Res
+import nl.marc_apps.ivycameracontrol.resources.action_login
+import nl.marc_apps.ivycameracontrol.resources.password
+import nl.marc_apps.ivycameracontrol.resources.username
 import nl.marc_apps.ivycameracontrol.ui.components.NavigateUpButton
 import nl.marc_apps.ivycameracontrol.ui.components.PlatformAlignedTopAppBar
 import nl.marc_apps.ivycameracontrol.ui.components.RecordingIndicator
 import nl.marc_apps.ivycameracontrol.ui.components.VideoStreamLoadingOverlay
 import nl.marc_apps.ivycameracontrol.ui.components.ZoomableBox
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -140,14 +145,14 @@ fun CameraDetailPage(
                         onValueChange = {
                             username = it
                         },
-                        label = { Text("Username") },
+                        label = { Text(stringResource(Res.string.username)) },
                         singleLine = true)
 
                     TextField(password,
                         onValueChange = {
                             password = it
                         },
-                        label = { Text("Password") },
+                        label = { Text(stringResource(Res.string.password)) },
                         singleLine = true,
                         visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
@@ -170,7 +175,7 @@ fun CameraDetailPage(
                             viewModel.login(camera.uid, username, password)
                         }
                     ) {
-                        Text("login")
+                        Text(stringResource(Res.string.action_login))
                     }
                 }
             }
