@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Ivy Camera Control</string>
     <string name="no_cameras_found_on_network">No cameras found in network</string>
+    <string name="action_login">login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
 </resources>

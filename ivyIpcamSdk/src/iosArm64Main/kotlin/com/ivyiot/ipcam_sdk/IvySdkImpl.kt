@@ -1,17 +1,34 @@
 package com.ivyiot.ipcam_sdk
 
+import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
+import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
+import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
+import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
 import com.ivyiot.ipclibrary.sdk.IVYIO_DEV_FOS_NVR
 import com.ivyiot.ipclibrary.sdk.IVYIO_DEV_NVR
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_MAX_USER
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OFFLINE
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_OK
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_TIMEOUT
+import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_USR_OR_PWD_ERR
+import com.ivyiot.ipclibrary.sdk.IvyCamera
 import com.ivyiot.ipclibrary.sdk.IvyDevLan
 import com.ivyiot.ipclibrary.sdk.IvySdkManager
+import com.ivyiot.ipclibrary.sdk.loginCamera
+import com.ivyiot.ipclibrary.sdk.logoutCamera
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 
-class AppleIvySdk : IvySdk {
+class IvySdkImpl : IvySdk {
     private val sdkManager by lazy {
         val instance = IvySdkManager.shared()
         instance.setP2PRegion(P2P_REGION_INTERNATIONAL)
@@ -44,6 +61,13 @@ class AppleIvySdk : IvySdk {
         }?.map {
             LocalCamera(it.uid, it.mac, it.ip, it.port, it.name)
         } ?: emptyList()
+    }
+
+    override suspend fun login(uid: String, username: String, password: String): IvyCameraConnection {
+        val ivyCamera = IvyCamera(uid, username, password)
+        val connection = IvyCameraConnectionImpl(ivyCamera)
+        connection.login()
+        return connection
     }
 
     companion object {

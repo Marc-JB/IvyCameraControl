@@ -1,5 +1,9 @@
 package nl.marc_apps.ivycameracontrol
 
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +13,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -38,10 +43,21 @@ fun IvyCameraControlApp() {
                     NavHost(
                         navController = navController,
                         startDestination = MainPageRoute,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
+                        popExitTransition = {
+                            scaleOut(
+                                targetScale = 0.9F,
+                                transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.5f)
+                            ) + fadeOut(
+                                animationSpec = tween(
+                                    durationMillis = 200,
+                                    easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f),
+                                ),
+                            )
+                        }
                     ) {
                         composable<MainPageRoute> {
-                            MainPage(navController = navController)
+                            MainPage(navController)
                         }
 
                         composable<CameraDetailRoute> { backStackEntry ->

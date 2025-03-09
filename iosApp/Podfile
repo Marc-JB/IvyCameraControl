@@ -1,5 +1,5 @@
 target 'iosApp' do
   use_frameworks!
-  platform :ios, '15.3'
+  platform :ios, '12.5'
   pod 'IvyCameraControl', :path => '../composeApp'
 end

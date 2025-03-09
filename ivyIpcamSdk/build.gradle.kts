@@ -18,7 +18,7 @@ kotlin {
     iosArm64 {
         val ivySdkLinkerOpts = listOf("-framework", "IvySdk", "-F${rootProject.layout.projectDirectory.dir("iosApp").dir("iosApp").asFile.absolutePath}")
         compilations.named("main") {
-            val ivySdkInterop by cinterops.creating {
+            cinterops.create("ivySdkInterop") {
                 defFile("src/nativeInterop/cinterop/IvySdk.def")
                 compilerOpts(ivySdkLinkerOpts)
             }

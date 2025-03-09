@@ -8,4 +8,6 @@ interface IvySdk {
     val localDevices: Flow<List<LocalCamera>>
 
     suspend fun getLocalDevices(): List<LocalCamera>
+
+    suspend fun login(uid: String, username: String, password: String): IvyCameraConnection
 }
