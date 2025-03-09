@@ -1,5 +1,6 @@
 package com.ivyiot.ipcam_sdk
 
+import androidx.compose.ui.uikit.utils.CMPOSLogger
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
@@ -48,6 +49,7 @@ import platform.Foundation.NSJSONSerialization
 import platform.Foundation.NSNumber
 import platform.UIKit.UIImage
 import platform.darwin.NSObject
+import platform.darwin.NSUInteger
 import platform.darwin.sel_registerName
 import platform.posix.memcpy
 import kotlin.coroutines.cancellation.CancellationException
@@ -101,13 +103,22 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
     override val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
-    private val mutableFlowSpeed = MutableStateFlow<BytesPerSecond?>(null)
-    override val flowSpeed = mutableFlowSpeed.asStateFlow()
+    private val mutableLiveStreamState = MutableStateFlow(LiveStreamState())
+    override val liveStreamState = mutableLiveStreamState.asStateFlow()
 
     private var isLiveStreamActive = false
 
-    private val ivyPlayerDelegate = IvyPlayerDelegateImpl {
-        mutableLiveStreamImageFlow.value = it
+    private val ivyPlayerDelegate = IvyPlayerDelegateImpl(::onFrameReceived, ::onSetFlowSpeed)
+
+    private fun onFrameReceived(frame: UIImage?) {
+        mutableLiveStreamState.update {
+            it.copy(isLoading = false)
+        }
+        mutableLiveStreamImageFlow.value = frame
+    }
+
+    private fun onSetFlowSpeed(flowSpeed: BytesPerSecond?) {
+        setFlowSpeed(flowSpeed)
     }
 
     private val ivyPlayer = IvyPlayer().also {
@@ -154,6 +165,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     }
 
     override suspend fun logout() {
+        stopLiveStream()
         mutableIsLoggedIn.update { false }
         ivyCamera.logoutCamera()
     }
@@ -169,7 +181,9 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     }
 
     override fun setFlowSpeed(flowSpeed: BytesPerSecond?) {
-        mutableFlowSpeed.value = flowSpeed
+        mutableLiveStreamState.update {
+            it.copy(flowSpeed = flowSpeed)
+        }
     }
 
     override fun playLiveStream() {
@@ -181,9 +195,12 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     override fun stopLiveStream() {
         if (isLiveStreamActive) {
-            mutableLiveStreamImageFlow.value = null
-            isLiveStreamActive = false
             ivyPlayer.stop()
+            isLiveStreamActive = false
+            mutableLiveStreamImageFlow.value = null
+            mutableLiveStreamState.update {
+                it.copy(isLoading = true, flowSpeed = null)
+            }
         }
     }
 
@@ -196,9 +213,16 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     }
 }
 
-class IvyPlayerDelegateImpl(val frameReceived: (UIImage) -> Unit) : NSObject(), IvyPlayerDelegateProtocol {
+class IvyPlayerDelegateImpl(
+    private val frameReceived: (UIImage) -> Unit,
+    private val setFlowSpeed: (BytesPerSecond) -> Unit
+) : NSObject(), IvyPlayerDelegateProtocol {
     override fun ivyPlayer(ivyPlayer: IvyPlayer, didReciveFrame: UIImage, isFirstFrame: Boolean) {
         frameReceived(didReciveFrame)
+    }
+
+    override fun ivyPlayer(ivyPlayer: IvyPlayer, mediaTransmitSpeed: NSUInteger) {
+        setFlowSpeed(BytesPerSecond(mediaTransmitSpeed.toUInt()))
     }
 }
 

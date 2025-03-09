@@ -39,8 +39,8 @@ class IvyCameraConnectionImpl(
     private val mutableIsRecording = MutableStateFlow(false)
     override val isRecording = mutableIsRecording.asStateFlow()
 
-    private val mutableFlowSpeed = MutableStateFlow<BytesPerSecond?>(null)
-    override val flowSpeed = mutableFlowSpeed.asStateFlow()
+    private val mutableLiveStreamState = MutableStateFlow(LiveStreamState())
+    override val liveStreamState = mutableLiveStreamState.asStateFlow()
 
     private val observer = Observer { _, argument ->
         if (argument is Message) {
@@ -48,7 +48,19 @@ class IvyCameraConnectionImpl(
         }
     }
 
-    override val videoListener = VideoListener()
+    override val videoListener = VideoListener(::onStreamStarted, ::onStreamClosed)
+
+    private fun onStreamStarted() {
+        mutableLiveStreamState.update {
+            it.copy(isLoading = false)
+        }
+    }
+
+    private fun onStreamClosed() {
+        mutableLiveStreamState.update {
+            it.copy(isLoading = true)
+        }
+    }
 
     init {
         ivyCamera.addObserver(observer)
@@ -94,7 +106,9 @@ class IvyCameraConnectionImpl(
     }
 
     override fun setFlowSpeed(flowSpeed: BytesPerSecond?) {
-        mutableFlowSpeed.value = flowSpeed
+        mutableLiveStreamState.update {
+            it.copy(flowSpeed = flowSpeed)
+        }
     }
 
     private fun onEventReceived(message: Message) {
@@ -115,12 +129,16 @@ class IvyCameraConnectionImpl(
     }
 }
 
-class VideoListener : IVideoListener {
+class VideoListener(
+    private val onStreamStarted: () -> Unit,
+    private val onStreamClosed: () -> Unit
+) : IVideoListener {
     override fun snapFinished(p0: ByteArray?) {
         TODO("Not yet implemented")
     }
 
     override fun firstFrameDone(p0: Bitmap?) {
+        onStreamStarted()
         println("First frame done")
     }
 
@@ -133,6 +151,7 @@ class VideoListener : IVideoListener {
     }
 
     override fun closeVideoSucc() {
+        onStreamClosed()
         println("Close video success")
     }
 

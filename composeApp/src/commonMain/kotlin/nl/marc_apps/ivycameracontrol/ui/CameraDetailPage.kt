@@ -1,5 +1,6 @@
 package nl.marc_apps.ivycameracontrol.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,13 +18,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,7 +35,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -39,10 +42,12 @@ import androidx.compose.ui.util.fastJoinToString
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ivyiot.ipcam_sdk.IvyLivePlayer
+import com.ivyiot.ipcam_sdk.LiveStreamState
 import com.ivyiot.ipcam_sdk.LocalCamera
 import nl.marc_apps.ivycameracontrol.ui.components.NavigateUpButton
 import nl.marc_apps.ivycameracontrol.ui.components.PlatformAlignedTopAppBar
 import nl.marc_apps.ivycameracontrol.ui.components.RecordingIndicator
+import nl.marc_apps.ivycameracontrol.ui.components.VideoStreamLoadingOverlay
 import nl.marc_apps.ivycameracontrol.ui.components.ZoomableBox
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,7 +63,7 @@ fun CameraDetailPage(
     var showPassword by remember { mutableStateOf(false) }
     val isLoggedIn by viewModel.isLoggedIn.collectAsStateWithLifecycle(false)
     val isRecording by viewModel.isRecording.collectAsStateWithLifecycle(false)
-    val netFlowSpeed by viewModel.newFlowSpeed.collectAsStateWithLifecycle(null)
+    val liveStreamState by viewModel.liveStreamState.collectAsStateWithLifecycle(LiveStreamState())
     val scrollState = rememberScrollState()
 
     Scaffold(
@@ -92,6 +97,10 @@ fun CameraDetailPage(
                                 offset,
                                 Modifier.fillMaxSize()
                             )
+
+                            if (liveStreamState.isLoading) {
+                                VideoStreamLoadingOverlay()
+                            }
                         }
 
                         Row (
@@ -101,7 +110,7 @@ fun CameraDetailPage(
                         ) {
                             RecordingIndicator(isRecording)
 
-                            netFlowSpeed?.let {
+                            liveStreamState.flowSpeed?.let {
                                 Spacer(Modifier.weight(1f))
 
                                 Text(it.getFormattedValue())

@@ -14,8 +14,13 @@ interface IvyCameraConnectionState : IvyCameraConnectionNativeState {
 
     val isRecording: StateFlow<Boolean>
 
-    val flowSpeed: StateFlow<BytesPerSecond?>
+    val liveStreamState: StateFlow<LiveStreamState>
 }
+
+data class LiveStreamState(
+    val isLoading: Boolean = true,
+    val flowSpeed: BytesPerSecond? = null
+)
 
 expect interface IvyCameraConnectionNativeMethods
 

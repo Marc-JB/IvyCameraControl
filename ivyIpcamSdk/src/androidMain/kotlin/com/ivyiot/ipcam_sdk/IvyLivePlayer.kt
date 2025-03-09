@@ -34,7 +34,7 @@ actual fun IvyLivePlayer(
                     try {
                         while(true) {
                             delay(1.seconds)
-                            ivyCameraConnection.setFlowSpeed(BytesPerSecond(it.currFlowValue))
+                            ivyCameraConnection.setFlowSpeed(BytesPerSecond(it.currFlowValue.toUInt()))
                         }
                     } finally {
                         ivyCameraConnection.setFlowSpeed(null)

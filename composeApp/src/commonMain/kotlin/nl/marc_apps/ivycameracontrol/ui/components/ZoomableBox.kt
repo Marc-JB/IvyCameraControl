@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
@@ -21,12 +22,14 @@ fun ZoomableBox(
     modifier: Modifier = Modifier,
     minScale: Float = 0.1f,
     maxScale: Float = 5f,
+    contentAlignment: Alignment = Alignment.TopStart,
     content: @Composable ZoomableBoxScope.() -> Unit
 ) {
     var scale by remember { mutableStateOf(1f) }
     var offset by remember { mutableStateOf(Offset.Zero) }
     var size by remember { mutableStateOf(IntSize.Zero) }
     Box(
+        contentAlignment = contentAlignment,
         modifier = modifier
             .clip(RectangleShape)
             .onSizeChanged { size = it }
