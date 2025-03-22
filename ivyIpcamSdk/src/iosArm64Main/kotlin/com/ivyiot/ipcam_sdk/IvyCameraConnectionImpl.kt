@@ -1,5 +1,6 @@
 package com.ivyiot.ipcam_sdk
 
+import androidx.compose.ui.graphics.ImageBitmap
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
@@ -7,6 +8,8 @@ import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
 import com.ivyiot.ipcam_sdk.models.EventIds
 import com.ivyiot.ipcam_sdk.models.RecordingState
 import com.ivyiot.ipcam_sdk.models.Bitrate
+import com.ivyiot.ipcam_sdk.utils.toByteArray
+import com.ivyiot.ipcam_sdk.utils.toComposeImageBitmap
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_MAX_USER
@@ -35,9 +38,11 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import platform.Foundation.NSData
 import platform.Foundation.NSDictionary
 import platform.Foundation.NSError
@@ -76,14 +81,6 @@ fun NSDictionary.toJsonString(): String {
     }
 }
 
-fun NSData.toByteArray(): ByteArray {
-    val byteArray = ByteArray(this.length.toInt())
-    byteArray.usePinned {
-        memcpy(it.addressOf(0), this@toByteArray.bytes, this@toByteArray.length)
-    }
-    return byteArray
-}
-
 class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConnection {
     override val uid = ivyCamera.deviceUID
 
@@ -95,7 +92,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     private val mutableIsRecording = MutableStateFlow(false)
     override val isRecording = mutableIsRecording.asStateFlow()
 
-    private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
+    private val mutableLiveStreamImageFlow = MutableStateFlow<ImageBitmap?>(null)
     override val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
     private val mutableLiveStreamState = MutableStateFlow(LiveStreamState())
@@ -109,7 +106,10 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         mutableLiveStreamState.update {
             it.copy(isLoading = false)
         }
-        mutableLiveStreamImageFlow.value = frame
+
+        GlobalScope.launch {
+            mutableLiveStreamImageFlow.value = frame?.toComposeImageBitmap()
+        }
     }
 
     private fun onSetFlowSpeed(flowSpeed: Bitrate?) {
