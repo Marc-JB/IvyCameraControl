@@ -10,7 +10,6 @@ import com.ivyiot.ipcam_sdk.models.EventIds
 import com.ivyiot.ipcam_sdk.models.RecordingState
 import com.ivyiot.ipcam_sdk.models.Bitrate
 import com.ivyiot.ipcam_sdk.utils.toByteArray
-import com.ivyiot.ipcam_sdk.utils.toComposeImageBitmap
 import com.ivyiot.ipclibrary.sdk.IVYIO_FRAME
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
@@ -40,6 +39,7 @@ import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
+import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
 import kotlinx.coroutines.GlobalScope
@@ -50,6 +50,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorType
+import org.jetbrains.skia.Data
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.ImageInfo
 import platform.Foundation.NSData
@@ -101,7 +102,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     private val mutableIsRecording = MutableStateFlow(false)
     override val isRecording = mutableIsRecording.asStateFlow()
 
-    private val mutableLiveStreamImageFlow = MutableStateFlow<ImageBitmap?>(null)
+    private val mutableLiveStreamImageFlow = MutableStateFlow<Image?>(null)
     override val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
     private val mutableLiveStreamState = MutableStateFlow(LiveStreamState())
@@ -116,7 +117,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
             it.copy(isLoading = false)
         }
 
-        mutableLiveStreamImageFlow.value = frame.toComposeImageBitmap()
+        mutableLiveStreamImageFlow.value = frame
     }
 
     private fun onSetFlowSpeed(flowSpeed: Bitrate?) {
@@ -233,15 +234,13 @@ class IvyPlayerDelegateImpl(
             memcpy(it.addressOf(0), frameData.data, frameData.len.toULong())
         }
 
-        GlobalScope.launch {
-            val image = Image.makeRaster(
-                ImageInfo(width, height, ColorType.BGRA_8888, ColorAlphaType.PREMUL),
-                byteArray,
-                rowBytes = width * 4
-            )
+        val image = Image.makeRaster(
+            ImageInfo(width, height, ColorType.BGRA_8888, ColorAlphaType.PREMUL),
+            byteArray,
+            rowBytes = width * 4
+        )
 
-            frameReceived(image)
-        }
+        frameReceived(image)
     }
 
     override fun ivyPlayer(ivyPlayer: IvyPlayer, mediaTransmitSpeed: NSUInteger) {

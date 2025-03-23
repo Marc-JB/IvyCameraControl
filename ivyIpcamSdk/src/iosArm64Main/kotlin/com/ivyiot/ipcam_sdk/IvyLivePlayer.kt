@@ -4,13 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.flow.map
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 actual fun IvyLivePlayer(
     ivyCameraConnection: IvyCameraConnection,
@@ -18,7 +18,9 @@ actual fun IvyLivePlayer(
     offset: Offset,
     modifier: Modifier
 ) {
-    val image by ivyCameraConnection.liveStreamImageFlow.collectAsStateWithLifecycle(null)
+    val image by ivyCameraConnection.liveStreamImageFlow
+        .map { it?.toComposeImageBitmap() }
+        .collectAsStateWithLifecycle(null)
 
     image?.let {
         Image(

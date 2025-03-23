@@ -1,10 +1,10 @@
 package com.ivyiot.ipcam_sdk
 
-import androidx.compose.ui.graphics.ImageBitmap
 import kotlinx.coroutines.flow.Flow
+import org.jetbrains.skia.Image
 
 actual interface IvyCameraConnectionNativeState {
-    val liveStreamImageFlow: Flow<ImageBitmap?>
+    val liveStreamImageFlow: Flow<Image?>
 }
 
 actual interface IvyCameraConnectionNativeMethods {
