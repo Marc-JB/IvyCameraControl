@@ -1,5 +1,7 @@
 package com.ivyiot.ipcam_sdk
 
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
@@ -7,6 +9,8 @@ import com.ivyiot.ipcam_sdk.errors.UserLimitReachedException
 import com.ivyiot.ipcam_sdk.models.EventIds
 import com.ivyiot.ipcam_sdk.models.RecordingState
 import com.ivyiot.ipcam_sdk.models.Bitrate
+import com.ivyiot.ipcam_sdk.utils.toByteArray
+import com.ivyiot.ipclibrary.sdk.IVYIO_FRAME
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_CANCEL_BY_USER
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_DENY
 import com.ivyiot.ipclibrary.sdk.IVYIO_RESULT_MAX_USER
@@ -27,17 +31,28 @@ import com.ivyiot.ipclibrary.sdk.logoutCamera
 import com.ivyiot.ipclibrary.sdk.removeEventObserver
 import com.ivyiot.ipclibrary.sdk.sendCommand
 import com.ivyiot.ipclibrary.sdk.username
+import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.ObjCObjectVar
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
+import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.usePinned
 import kotlinx.cinterop.value
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ColorType
+import org.jetbrains.skia.Data
+import org.jetbrains.skia.Image
+import org.jetbrains.skia.ImageInfo
 import platform.Foundation.NSData
 import platform.Foundation.NSDictionary
 import platform.Foundation.NSError
@@ -76,14 +91,6 @@ fun NSDictionary.toJsonString(): String {
     }
 }
 
-fun NSData.toByteArray(): ByteArray {
-    val byteArray = ByteArray(this.length.toInt())
-    byteArray.usePinned {
-        memcpy(it.addressOf(0), this@toByteArray.bytes, this@toByteArray.length)
-    }
-    return byteArray
-}
-
 class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConnection {
     override val uid = ivyCamera.deviceUID
 
@@ -95,7 +102,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     private val mutableIsRecording = MutableStateFlow(false)
     override val isRecording = mutableIsRecording.asStateFlow()
 
-    private val mutableLiveStreamImageFlow = MutableStateFlow<UIImage?>(null)
+    private val mutableLiveStreamImageFlow = MutableStateFlow<Image?>(null)
     override val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
 
     private val mutableLiveStreamState = MutableStateFlow(LiveStreamState())
@@ -105,10 +112,11 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     private val ivyPlayerDelegate = IvyPlayerDelegateImpl(::onFrameReceived, ::onSetFlowSpeed)
 
-    private fun onFrameReceived(frame: UIImage?) {
+    private fun onFrameReceived(frame: Image) {
         mutableLiveStreamState.update {
             it.copy(isLoading = false)
         }
+
         mutableLiveStreamImageFlow.value = frame
     }
 
@@ -183,7 +191,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     override fun playLiveStream() {
         if (!isLiveStreamActive) {
-            ivyPlayer.playLive(ivyCamera, IvyVideoDecodeType.IvyVideoDecodeUIImage)
+            ivyPlayer.playLive(ivyCamera, IvyVideoDecodeType.IvyVideoDecodeBGRA32)
             isLiveStreamActive = true
         }
     }
@@ -209,11 +217,30 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 }
 
 class IvyPlayerDelegateImpl(
-    private val frameReceived: (UIImage) -> Unit,
+    private val frameReceived: (Image) -> Unit,
     private val setFlowSpeed: (Bitrate) -> Unit
 ) : NSObject(), IvyPlayerDelegateProtocol {
-    override fun ivyPlayer(ivyPlayer: IvyPlayer, didReciveFrame: UIImage, isFirstFrame: Boolean) {
-        frameReceived(didReciveFrame)
+    override fun ivyPlayer(
+        ivyPlayer: IvyPlayer,
+        didReciveIVYFrame: CPointer<IVYIO_FRAME>?,
+        isFirstFrame: Boolean
+    ) {
+        val frameData = didReciveIVYFrame?.pointed ?: return
+        val width = frameData.media.video.w.toInt()
+        val height = frameData.media.video.h.toInt()
+        val byteArray = ByteArray(frameData.len.toInt())
+
+        byteArray.usePinned {
+            memcpy(it.addressOf(0), frameData.data, frameData.len.toULong())
+        }
+
+        val image = Image.makeRaster(
+            ImageInfo(width, height, ColorType.BGRA_8888, ColorAlphaType.PREMUL),
+            byteArray,
+            rowBytes = width * 4
+        )
+
+        frameReceived(image)
     }
 
     override fun ivyPlayer(ivyPlayer: IvyPlayer, mediaTransmitSpeed: NSUInteger) {
