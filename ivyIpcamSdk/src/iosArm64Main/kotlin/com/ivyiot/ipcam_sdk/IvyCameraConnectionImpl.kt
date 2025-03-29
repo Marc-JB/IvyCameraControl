@@ -1,7 +1,8 @@
 package com.ivyiot.ipcam_sdk
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.graphics.asComposeImageBitmap
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
@@ -45,6 +46,7 @@ import kotlinx.cinterop.value
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Bitmap
@@ -102,8 +104,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     private val mutableIsRecording = MutableStateFlow(false)
     override val isRecording = mutableIsRecording.asStateFlow()
 
-    private val mutableLiveStreamImageFlow = MutableStateFlow<Image?>(null)
-    override val liveStreamImageFlow = mutableLiveStreamImageFlow.asStateFlow()
+    override val liveStreamImages = mutableStateOf<ImageBitmap?>(null)
 
     private val mutableLiveStreamState = MutableStateFlow(LiveStreamState())
     override val liveStreamState = mutableLiveStreamState.asStateFlow()
@@ -112,12 +113,12 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 
     private val ivyPlayerDelegate = IvyPlayerDelegateImpl(::onFrameReceived, ::onSetFlowSpeed)
 
-    private fun onFrameReceived(frame: Image) {
+    private fun onFrameReceived(frame: Bitmap) {
         mutableLiveStreamState.update {
             it.copy(isLoading = false)
         }
 
-        mutableLiveStreamImageFlow.value = frame
+        liveStreamImages.value = frame.asComposeImageBitmap()
     }
 
     private fun onSetFlowSpeed(flowSpeed: Bitrate?) {
@@ -200,7 +201,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         if (isLiveStreamActive) {
             ivyPlayer.stop()
             isLiveStreamActive = false
-            mutableLiveStreamImageFlow.value = null
+            liveStreamImages.value = null
             mutableLiveStreamState.update {
                 it.copy(isLoading = true, flowSpeed = null)
             }
@@ -217,7 +218,7 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
 }
 
 class IvyPlayerDelegateImpl(
-    private val frameReceived: (Image) -> Unit,
+    private val frameReceived: (Bitmap) -> Unit,
     private val setFlowSpeed: (Bitrate) -> Unit
 ) : NSObject(), IvyPlayerDelegateProtocol {
     override fun ivyPlayer(
@@ -234,13 +235,15 @@ class IvyPlayerDelegateImpl(
             memcpy(it.addressOf(0), frameData.data, frameData.len.toULong())
         }
 
-        val image = Image.makeRaster(
-            ImageInfo(width, height, ColorType.BGRA_8888, ColorAlphaType.PREMUL),
+        val bitmap = Bitmap()
+        bitmap.installPixels(
+            ImageInfo.makeN32(width, height, ColorAlphaType.PREMUL),
             byteArray,
             rowBytes = width * 4
         )
+        bitmap.setImmutable()
 
-        frameReceived(image)
+        frameReceived(bitmap)
     }
 
     override fun ivyPlayer(ivyPlayer: IvyPlayer, mediaTransmitSpeed: NSUInteger) {
