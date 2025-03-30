@@ -2,7 +2,11 @@ package com.ivyiot.ipcam_sdk
 
 import android.graphics.Bitmap
 import android.os.Message
+import com.ivyio.sdk.IvyIoSdkJni
+import com.ivyio.sdk.OpenVideoArgsType0
+import com.ivyio.sdk.OpenVideoArgsType1
 import com.ivyio.sdk.Result
+import com.ivyiot.ipcam_sdk.IvyVideoSurfaceView
 import com.ivyiot.ipcam_sdk.errors.AccessDeniedException
 import com.ivyiot.ipcam_sdk.errors.DeviceOfflineOrUnreachableException
 import com.ivyiot.ipcam_sdk.errors.InvalidCredentialsException
@@ -15,9 +19,13 @@ import com.ivyiot.ipclibrary.sdk.Cmd
 import com.ivyiot.ipclibrary.sdk.CmdHelper
 import com.ivyiot.ipclibrary.sdk.ISdkCallback
 import com.ivyiot.ipclibrary.video.IVideoListener
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.util.Observer
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
@@ -40,23 +48,19 @@ class IvyCameraConnectionImpl(
     private val mutableLiveStreamState = MutableStateFlow(LiveStreamState())
     override val liveStreamState = mutableLiveStreamState.asStateFlow()
 
+    private val liveStreamOpenCloseMutex = Mutex()
+
     private val observer = Observer { _, argument ->
         if (argument is Message) {
             onEventReceived(argument)
         }
     }
 
-    override val videoListener = VideoListener(::onStreamStarted, ::onStreamClosed)
+    override val videoListener = VideoListener(::onStreamStarted)
 
     private fun onStreamStarted() {
         mutableLiveStreamState.update {
             it.copy(isLoading = false)
-        }
-    }
-
-    private fun onStreamClosed() {
-        mutableLiveStreamState.update {
-            it.copy(isLoading = true)
         }
     }
 
@@ -94,8 +98,41 @@ class IvyCameraConnectionImpl(
     }
 
     override suspend fun logout() {
+        stopLiveStream()
         mutableIsLoggedIn.update { false }
         ivyCamera.logout()
+    }
+
+    override suspend fun playLiveStream() {
+        val openVideoArgs = OpenVideoArgsType0()
+        openVideoArgs.streamType = ivyCamera.streamType
+        val result = liveStreamOpenCloseMutex.withLock {
+            withContext(Dispatchers.IO) {
+                IvyIoSdkJni.openVideo(ivyCamera.handle, openVideoArgs, 10_000, 1)
+            }
+        }
+
+        if (result != 0) {
+            throw RuntimeException("Failed to open live stream, error code $result")
+        } else {
+            onStreamStarted()
+        }
+    }
+
+    override suspend fun stopLiveStream() {
+        mutableLiveStreamState.update {
+            it.copy(isLoading = true)
+        }
+
+        val result = liveStreamOpenCloseMutex.withLock {
+            withContext(Dispatchers.IO) {
+                IvyIoSdkJni.closeVideo(ivyCamera.handle, 10_000, 1)
+            }
+        }
+
+        if (result != 0) {
+            throw RuntimeException("Failed to close live stream, error code $result")
+        }
     }
 
     override suspend fun sendTestCommand() {
@@ -128,19 +165,18 @@ class IvyCameraConnectionImpl(
 }
 
 class VideoListener(
-    private val onStreamStarted: () -> Unit,
-    private val onStreamClosed: () -> Unit
+    private val onStreamStarted: () -> Unit
 ) : IVideoListener {
     override fun snapFinished(p0: ByteArray?) {
         TODO("Not yet implemented")
     }
 
     override fun firstFrameDone(p0: Bitmap?) {
-        onStreamStarted()
         println("First frame done")
     }
 
     override fun openVideoSucc() {
+        onStreamStarted()
         println("Video open success")
     }
 
@@ -149,7 +185,6 @@ class VideoListener(
     }
 
     override fun closeVideoSucc() {
-        onStreamClosed()
         println("Close video success")
     }
 

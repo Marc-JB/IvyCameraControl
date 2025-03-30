@@ -7,8 +7,4 @@ actual interface IvyCameraConnectionNativeState {
     val liveStreamImages: State<ImageBitmap?>
 }
 
-actual interface IvyCameraConnectionNativeMethods {
-    fun playLiveStream()
-
-    fun stopLiveStream()
-}
+actual interface IvyCameraConnectionNativeMethods

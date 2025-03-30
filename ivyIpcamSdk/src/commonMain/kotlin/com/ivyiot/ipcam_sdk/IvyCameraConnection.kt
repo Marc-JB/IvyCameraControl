@@ -31,5 +31,9 @@ interface IvyCameraConnection : AutoCloseable, IvyCameraConnectionState, IvyCame
 
     suspend fun sendTestCommand()
 
+    suspend fun playLiveStream()
+
+    suspend fun stopLiveStream()
+
     fun setFlowSpeed(flowSpeed: Bitrate?)
 }

@@ -49,6 +49,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ColorType
@@ -190,14 +191,14 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
         }
     }
 
-    override fun playLiveStream() {
+    override suspend fun playLiveStream() {
         if (!isLiveStreamActive) {
             ivyPlayer.playLive(ivyCamera, IvyVideoDecodeType.IvyVideoDecodeBGRA32)
             isLiveStreamActive = true
         }
     }
 
-    override fun stopLiveStream() {
+    override suspend fun stopLiveStream() {
         if (isLiveStreamActive) {
             ivyPlayer.stop()
             isLiveStreamActive = false
@@ -209,7 +210,9 @@ class IvyCameraConnectionImpl(private val ivyCamera: IvyCamera) : IvyCameraConne
     }
 
     override fun close() {
-        stopLiveStream()
+        runBlocking {
+            stopLiveStream()
+        }
         eventHandler.removeObserver(ivyCamera)
         mutableIsLoggedIn.update { false }
         ivyCamera.logoutCamera()

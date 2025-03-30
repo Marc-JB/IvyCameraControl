@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
+import kotlinx.coroutines.runBlocking
 
 @Composable
 actual fun IvyLivePlayer(
@@ -32,10 +33,14 @@ actual fun IvyLivePlayer(
     }
 
     DisposableEffect(Unit) {
-        ivyCameraConnection.playLiveStream()
+        runBlocking {
+            ivyCameraConnection.playLiveStream()
+        }
 
         onDispose {
-            ivyCameraConnection.stopLiveStream()
+            runBlocking {
+                ivyCameraConnection.stopLiveStream()
+            }
         }
     }
 }

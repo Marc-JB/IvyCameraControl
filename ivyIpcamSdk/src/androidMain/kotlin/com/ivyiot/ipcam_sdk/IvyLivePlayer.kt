@@ -1,6 +1,7 @@
 package com.ivyiot.ipcam_sdk
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,10 +12,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.viewinterop.AndroidView
 import com.ivyiot.ipcam_sdk.models.Bitrate
-import com.ivyiot.ipclibrary.video.VideoSurfaceView
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.seconds
 
 @Composable
 actual fun IvyLivePlayer(
@@ -27,17 +26,14 @@ actual fun IvyLivePlayer(
     val coroutineScope = rememberCoroutineScope()
     AndroidView(
         factory = { context ->
-            VideoSurfaceView(context).also {
+            IvyVideoSurfaceView(context).also {
                 it.clipToOutline = true
+                it.ivyCamera = ivyCameraConnection.ivyCamera
+                it.videoListener = ivyCameraConnection.videoListener
 
                 coroutineScope.launch {
-                    try {
-                        while(true) {
-                            delay(1.seconds)
-                            ivyCameraConnection.setFlowSpeed(Bitrate(it.currFlowValue.toUInt()))
-                        }
-                    } finally {
-                        ivyCameraConnection.setFlowSpeed(null)
+                    it.bitrateHandler.bitrate.collect {
+                        ivyCameraConnection.setFlowSpeed(if (it == 0) null else Bitrate(it.toUInt()))
                     }
                 }
             }
@@ -53,12 +49,23 @@ actual fun IvyLivePlayer(
             if (!isInitialised) {
                 isInitialised = true
 
-                it.openVideo(ivyCameraConnection.ivyCamera, ivyCameraConnection.videoListener)
+                it.openVideo()
             }
         },
         onRelease = {
             it.closeVideo()
-            it.clearVideoView()
         }
     )
+
+    DisposableEffect(Unit) {
+        coroutineScope.launch {
+            ivyCameraConnection.playLiveStream()
+        }
+
+        onDispose {
+            GlobalScope.launch {
+                ivyCameraConnection.stopLiveStream()
+            }
+        }
+    }
 }
