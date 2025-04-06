@@ -2,6 +2,8 @@ package com.ivyiot.ipcam_sdk
 
 import android.graphics.Bitmap
 import android.os.Message
+import com.ivyio.sdk.FrameData
+import com.ivyio.sdk.IvyIoInteger
 import com.ivyio.sdk.IvyIoSdkJni
 import com.ivyio.sdk.OpenVideoArgsType0
 import com.ivyio.sdk.OpenVideoArgsType1
@@ -20,9 +22,12 @@ import com.ivyiot.ipclibrary.sdk.CmdHelper
 import com.ivyiot.ipclibrary.sdk.ISdkCallback
 import com.ivyiot.ipclibrary.video.IVideoListener
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -31,6 +36,7 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration.Companion.milliseconds
 
 class IvyCameraConnectionImpl(
     override val ivyCamera: IvyCamera
@@ -156,6 +162,24 @@ class IvyCameraConnectionImpl(
         }
     }
 
+    override suspend fun getInitialFrameData(): FrameData = coroutineScope {
+        val initialFrameData = FrameData()
+
+        while(isActive) {
+            val flowValue = IvyIoInteger(0)
+            val result = withContext(Dispatchers.IO) {
+                IvyIoSdkJni.getRawStreamData(ivyCamera.handle, 0, initialFrameData, flowValue, 0)
+            }
+            if (result == 0 && initialFrameData.dataLen > 0) {
+                break
+            }
+
+            delay(15.milliseconds)
+        }
+
+        initialFrameData
+    }
+
     override fun close() {
         ivyCamera.deleteObserver(observer)
         mutableIsLoggedIn.update { false }
@@ -172,11 +196,11 @@ class VideoListener(
     }
 
     override fun firstFrameDone(p0: Bitmap?) {
+        onStreamStarted()
         println("First frame done")
     }
 
     override fun openVideoSucc() {
-        onStreamStarted()
         println("Video open success")
     }
 

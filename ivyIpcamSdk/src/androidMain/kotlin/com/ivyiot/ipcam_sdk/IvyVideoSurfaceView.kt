@@ -224,24 +224,23 @@ class IvyVideoSurfaceView : TextureView, SurfaceTextureListener {
 
     private inner class HardwareDecodingThread : Thread() {
         private var decoder: MediaCodec? = null
-        var switchToSoftwareEncoder: Boolean = false
 
         @Throws(IOException::class)
         fun createDecoder(key_mime: String, width: Int, height: Int): MediaCodec {
-            this.decoder = MediaCodec.createDecoderByType(key_mime)
             val mediaFormat = MediaFormat.createVideoFormat(key_mime, width, height)
             mediaFormat.setInteger(MediaFormat.KEY_MAX_INPUT_SIZE, 0)
-            this.decoder!!.configure(mediaFormat, this@IvyVideoSurfaceView.mSurface, null, 0)
-            this.decoder!!.start()
-            return this.decoder!!
+
+            val decoder = MediaCodec.createDecoderByType(key_mime)
+            this.decoder = decoder
+            decoder.configure(mediaFormat, this@IvyVideoSurfaceView.mSurface, null, 0)
+            decoder.start()
+            return decoder
         }
 
         fun stopAndReleaseDecoder() {
-            if (this.decoder != null) {
-                this.decoder!!.stop()
-                this.decoder!!.release()
-            }
-            this.decoder = null
+            decoder?.stop()
+            decoder?.release()
+            decoder = null
         }
 
         override fun run() {
@@ -278,9 +277,7 @@ class IvyVideoSurfaceView : TextureView, SurfaceTextureListener {
             val decoder: MediaCodec
 
             try {
-                this.switchToSoftwareEncoder = false
-                decoder =
-                    this.createDecoder(key_mime, initialFrameData.video_w, initialFrameData.video_h)
+                decoder = createDecoder(key_mime, initialFrameData.video_w, initialFrameData.video_h)
             } catch (e: Exception) {
                 stopAndReleaseDecoder()
                 startSoftwareDecodeThread()
@@ -288,6 +285,7 @@ class IvyVideoSurfaceView : TextureView, SurfaceTextureListener {
             }
 
             var bufferErrorCounter = 0
+            var switchToSoftwareEncoder = false
 
             while (isDraw) {
                 try {
@@ -345,7 +343,7 @@ class IvyVideoSurfaceView : TextureView, SurfaceTextureListener {
                         }
                     }
                 } catch (e: Throwable) {
-                    this.switchToSoftwareEncoder = true
+                    switchToSoftwareEncoder = true
                     break
                 }
             }
@@ -355,7 +353,7 @@ class IvyVideoSurfaceView : TextureView, SurfaceTextureListener {
             } catch (ignored: Throwable) {
             }
 
-            if (this.switchToSoftwareEncoder) {
+            if (switchToSoftwareEncoder) {
                 startSoftwareDecodeThread()
             }
         }
