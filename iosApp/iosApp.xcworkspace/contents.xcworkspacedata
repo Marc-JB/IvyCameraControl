@@ -4,9 +4,6 @@
    <FileRef
       location = "group:iosApp.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:Pods/Pods.xcodeproj">
-   </FileRef>
    <Group
       location = "group:Kotlin"
       name = "Kotlin">

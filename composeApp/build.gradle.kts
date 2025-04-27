@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFramework
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
-    alias(libs.plugins.kotlin.cocoapods)
     alias(libs.plugins.android.library)
     alias(libs.plugins.compose)
     alias(libs.plugins.compose.compiler)
@@ -23,21 +23,13 @@ kotlin {
         }
     }
 
-    iosArm64()
+    val xcf = XCFramework()
 
-    cocoapods {
-        summary = "Some description for the Shared Module"
-        homepage = "Link to the Shared Module homepage"
-        version = "1.0"
-
-        name = "IvyCameraControl"
-
-        ios.deploymentTarget = "12.5"
-        podfile = project.file("../iosApp/Podfile")
-
-        framework {
-            baseName = "IvyCameraControl"
+    iosArm64 {
+        binaries.framework {
             isStatic = true
+            baseName = "IvyCameraControl"
+            xcf.add(this)
         }
     }
 
@@ -67,8 +59,6 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose.navigation)
-            implementation(project.dependencies.platform(libs.koin.annotations.bom))
-            implementation(libs.koin.annotations)
 
             implementation(libs.kotlin.coroutines)
             implementation(libs.kotlin.datetime)
@@ -86,14 +76,6 @@ kotlin {
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
         }
     }
-}
-
-dependencies {
-    ksp(libs.koin.annotations.ksp)
-}
-
-ksp {
-    arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
 }
 
 android {
