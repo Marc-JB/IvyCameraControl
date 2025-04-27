@@ -1,3 +1,0 @@
-package nl.marc_apps.ivycameracontrol.platform
-
-expect val platformHandlesSwipeBackGesture: Boolean

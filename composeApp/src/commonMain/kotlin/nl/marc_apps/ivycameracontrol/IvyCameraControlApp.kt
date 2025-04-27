@@ -21,7 +21,6 @@ import androidx.navigation.toRoute
 import kotlinx.serialization.json.Json
 import nl.marc_apps.ivycameracontrol.ui.CameraDetailPage
 import nl.marc_apps.ivycameracontrol.ui.MainPage
-import nl.marc_apps.ivycameracontrol.ui.components.BackGestureHandler
 import nl.marc_apps.ivycameracontrol.ui.navigation.CameraDetailRoute
 import nl.marc_apps.ivycameracontrol.ui.navigation.MainPageRoute
 import org.koin.compose.KoinContext
@@ -39,31 +38,29 @@ fun IvyCameraControlApp() {
             ) {
                 val navController = rememberNavController()
 
-                BackGestureHandler(navController) {
-                    NavHost(
-                        navController = navController,
-                        startDestination = MainPageRoute,
-                        modifier = Modifier.fillMaxSize(),
-                        popExitTransition = {
-                            scaleOut(
-                                targetScale = 0.9F,
-                                transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.5f)
-                            ) + fadeOut(
-                                animationSpec = tween(
-                                    durationMillis = 200,
-                                    easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f),
-                                ),
-                            )
-                        }
-                    ) {
-                        composable<MainPageRoute> {
-                            MainPage(navController)
-                        }
+                NavHost(
+                    navController = navController,
+                    startDestination = MainPageRoute,
+                    modifier = Modifier.fillMaxSize(),
+                    popExitTransition = {
+                        scaleOut(
+                            targetScale = 0.9F,
+                            transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0.5f)
+                        ) + fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 200,
+                                easing = CubicBezierEasing(0.1f, 0.1f, 0f, 1f),
+                            ),
+                        )
+                    }
+                ) {
+                    composable<MainPageRoute> {
+                        MainPage(navController)
+                    }
 
-                        composable<CameraDetailRoute> { backStackEntry ->
-                            val route = backStackEntry.toRoute<CameraDetailRoute>()
-                            CameraDetailPage(Json.Default.decodeFromString(route.camera), navController)
-                        }
+                    composable<CameraDetailRoute> { backStackEntry ->
+                        val route = backStackEntry.toRoute<CameraDetailRoute>()
+                        CameraDetailPage(Json.Default.decodeFromString(route.camera), navController)
                     }
                 }
             }
