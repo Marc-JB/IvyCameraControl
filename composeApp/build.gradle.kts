@@ -89,19 +89,11 @@ kotlin {
 }
 
 dependencies {
-    add("kspCommonMainMetadata", libs.koin.annotations.ksp)
-    add("kspAndroid", libs.koin.annotations.ksp)
-    add("kspIosArm64", libs.koin.annotations.ksp)
-}
-
-project.tasks.withType(KotlinCompilationTask::class.java).configureEach {
-    if(name != "kspCommonMainKotlinMetadata") {
-        dependsOn("kspCommonMainKotlinMetadata")
-    }
+    ksp(libs.koin.annotations.ksp)
 }
 
 ksp {
-    arg("KOIN_USE_COMPOSE_VIEWMODEL","true")
+    arg("KOIN_USE_COMPOSE_VIEWMODEL", "true")
 }
 
 android {
